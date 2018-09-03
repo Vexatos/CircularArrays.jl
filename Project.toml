@@ -1,7 +1,9 @@
 name = "CircularArrays"
-desc = "Arrays with fixed size and circular indexing."
 uuid = "dcaa3502-af75-11e8-34c7-6b8fb8855653"
+desc = "Arrays with fixed size and circular indexing."
+url = "https://github.com/Vexatos/CircularArrays.jl"
 authors = ["Vexatos <Stuarzt@gmx.de>"]
+license = "MIT"
 version = "0.1.0"
 
 [extras]

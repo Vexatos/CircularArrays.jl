@@ -20,6 +20,7 @@ end
     CircularVector{T} <: AbstractVector{T}
 
 One-dimensional array backed by an AbstractArray{T, 1} with fixed size and circular indexing.
+Alias for [`CircularArray{T,1}`](@ref).
 
     array[index] == array[mod1(index, size)]
 """
