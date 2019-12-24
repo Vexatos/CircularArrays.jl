@@ -1,15 +1,10 @@
 # CircularArrays.jl - Multi-dimensional arrays with fixed size and circular indexing
 
-CircularArrays.jl is a small package adding the `CircularArray{T, N}` type which can be backed by any `AbstractArray{T, N}`. A `CircularArray` has a fixed size and features circular indexing across all dimensions: Indexing and assigning beyond its bounds is possible, as the end of the array is considered adjacent to its start; indices less than 1 are possible too. Iterators will still stop at the end of the array, and indexing using ranges is only possible with ranges within the bounds of the backing array.
+CircularArrays.jl is a small package adding the `CircularArray{T, N}` type which can be backed by any `AbstractArray{T, N}`. A `CircularArray` has a fixed size and features circular indexing across all dimensions: Indexing and assigning beyond its bounds in both directions is possible, as the end of the array is considered adjacent to its start. `CircularArray`s have the same `axes` as the underlying backing array, and iterators only iterate over these indices.
 
 The `CircularVector{T}` type is added as an alias for `CircularArray{T, 1}`.
 
-```julia
-# CircularArrays use mod1 for their circular behaviour.
-array[index] == array[mod1(index, size)]
-```
-
-The following functions are provided.
+The following constructors are provided.
 
 ```julia
 # Initialize a CircularArray backed by any AbstractArray.
@@ -20,6 +15,30 @@ CircularArray(initialValue::T, dims...) where T
 CircularVector(arr::AbstractArray{T, 1}) where T
 CircularVector(initialValue::T, size::Int) where T
 ```
+
+### Examples
+
+```julia
+julia> using CircularArrays
+julia> a = CircularArray([1,2,3]);
+julia> a[0:4]
+5-element CircularArray{Int64,1}:
+ 3
+ 1
+ 2
+ 3
+ 1
+julia> using OffsetArrays
+julia> i = OffsetArray(1:5,-2:2);
+julia> a[i]
+5-element CircularArray{Int64,1} with indices -2:2:
+ 1
+ 2
+ 3
+ 1
+ 2
+```
+
 
 ### License
 
