@@ -2,13 +2,13 @@ using CircularArrays
 using OffsetArrays
 using Test
 
-data = rand(Int64, 5)
-v1 = CircularVector(data)
-
 @test IndexStyle(CircularArray) == IndexCartesian()
 @test IndexStyle(CircularVector) == IndexLinear()
 
 @testset "vector" begin
+    data = rand(Int64, 5)
+    v1 = CircularVector(data)
+
     @test size(v1, 1) == 5
     @test typeof(v1) == CircularVector{Int64}
     @test isa(v1, CircularVector)
