@@ -44,6 +44,9 @@ end
     @test a1[2, 3] == 14
     a1[2, 3] = 17
     @test a1[2, 3] == 17
+    @test a1[-1, 7] == 17
+    @test a1[-1:5, 4:10][1, 4] == 17
+    @test a1[:, -1:-1][2, 1] == 17
     @test !isa(a1, CircularVector)
     @test !isa(a1, AbstractVector)
     @test isa(a1, AbstractArray)
@@ -75,7 +78,7 @@ end
     data = reshape(1:9,3,3)
     a = CircularArray(OffsetArray(data,-1,-1))
     @test collect(a) == data
-    @test all(a[i,j] == data[mod1(i+1,3),mod1(j+1,3)] for i=-10:10, j=-10:10)
+    @test all(a[x,y] == data[mod1(x+1,3),mod1(y+1,3)] for x=-10:10, y=-10:10)
     @test a[i,1] == CircularArray(OffsetArray([5,6,4,5,6],-2:2))
     @test a[CartesianIndex.(i,i)] == CircularArray(OffsetArray([5,9,1,5,9],-2:2))
     @test a[a .> 4] == 5:9
