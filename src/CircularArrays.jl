@@ -4,7 +4,6 @@ Arrays with fixed size and circular indexing.
 module CircularArrays
 
 export CircularArray, CircularVector
-using OffsetArrays: OffsetAxis
 
 """
     CircularArray{T, N} <: AbstractArray{T, N}
@@ -47,7 +46,10 @@ CircularArray(def::T, size) where T = CircularArray(fill(def, size))
 @inline Base.similar(arr::CircularArray, ::Type{T}, dims::Tuple{Base.DimOrInd, Vararg{Base.DimOrInd}}) where T = _similar(arr,T,dims)
 # Ambiguity resolution with Base
 @inline Base.similar(arr::CircularArray, ::Type{T}, dims::Tuple{Int64,Vararg{Int64}}) where T = _similar(arr,T,dims)
-# Ambiguity resolution with OffsetArrays, for the case similar(arr) where arr.data::OffsetArray
+# Ambiguity resolution with a type-pirating OffsetArrays method. See OffsetArrays issue #87.
+# Ambiguity is triggered in the case similar(arr) where arr.data::OffsetArray.
+# The OffsetAxis definition is copied from OffsetArrays.
+const OffsetAxis = Union{Integer, UnitRange, Base.OneTo, Base.IdentityUnitRange, Colon}
 @inline Base.similar(arr::CircularArray, ::Type{T}, dims::Tuple{OffsetAxis, Vararg{OffsetAxis}}) where T = _similar(arr,T,dims)
 
 CircularVector(data::AbstractArray{T, 1}) where T = CircularVector{T}(data)
