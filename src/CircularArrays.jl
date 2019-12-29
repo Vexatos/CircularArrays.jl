@@ -26,10 +26,7 @@ Alias for [`CircularArray{T,1}`](@ref).
 """
 const CircularVector{T} = CircularArray{T, 1}
 
-# Copied from a method of Base.mod, for compatibility with Julia version < 1.3,
-# where this method is not defined
-_mod(i::Integer, r::AbstractUnitRange{<:Integer}) = mod(i-first(r), length(r)) + first(r)
-@inline clamp_bounds(arr::CircularArray, I::Tuple{Vararg{Int}})::AbstractArray{Int, 1} = map(Base.splat(_mod), zip(I, axes(arr.data)))
+@inline clamp_bounds(arr::CircularArray, I::Tuple{Vararg{Int}})::AbstractArray{Int, 1} = map(Base.splat(mod), zip(I, axes(arr.data)))
 
 CircularArray(def::T, size) where T = CircularArray(fill(def, size))
 

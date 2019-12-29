@@ -4,7 +4,7 @@ license = "MIT"
 desc = "Arrays with fixed size and circular indexing."
 authors = ["Vexatos <Stuarzt@gmx.de>"]
 url = "https://github.com/Vexatos/CircularArrays.jl"
-version = "0.1.0"
+version = "1.0.0"
 
 [compat]
 julia = "1.3"
