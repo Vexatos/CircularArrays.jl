@@ -8,5 +8,9 @@
 !/LICENSE.md
 !/README.md
 
+!/.travis.yml
+
 !/REQUIRE
 !/Project.toml
+
+Manifest.toml
