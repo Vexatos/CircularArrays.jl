@@ -1,5 +1,5 @@
 name = "CircularArrays"
-uuid = "dcaa3502-af75-11e8-34c7-6b8fb8855653"
+uuid = "7a955b69-7140-5f4e-a0ed-f168c5e2e749"
 license = "MIT"
 desc = "Arrays with fixed size and circular indexing."
 authors = ["Vexatos <Stuarzt@gmx.de>"]
