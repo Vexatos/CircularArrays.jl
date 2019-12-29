@@ -1,5 +1,7 @@
 # CircularArrays.jl - Multi-dimensional arrays with fixed size and circular indexing
 
+[![Build Status](https://travis-ci.com/Vexatos/CircularArrays.jl.svg?branch=master)](https://travis-ci.com/Vexatos/CircularArrays.jl)
+
 CircularArrays.jl is a small package adding the `CircularArray{T, N}` type which can be backed by any `AbstractArray{T, N}`. A `CircularArray` has a fixed size and features circular indexing across all dimensions: Indexing and assigning beyond its bounds in both directions is possible, as the end of the array is considered adjacent to its start. `CircularArray`s have the same `axes` as the underlying backing array, and iterators only iterate over these indices.
 
 The `CircularVector{T}` type is added as an alias for `CircularArray{T, 1}`.
