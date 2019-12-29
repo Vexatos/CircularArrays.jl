@@ -1,13 +1,14 @@
 name = "CircularArrays"
 uuid = "dcaa3502-af75-11e8-34c7-6b8fb8855653"
-desc = "Arrays with fixed size and circular indexing."
-url = "https://github.com/Vexatos/CircularArrays.jl"
-authors = ["Vexatos <Stuarzt@gmx.de>"]
 license = "MIT"
+desc = "Arrays with fixed size and circular indexing."
+authors = ["Vexatos <Stuarzt@gmx.de>"]
+url = "https://github.com/Vexatos/CircularArrays.jl"
 version = "0.1.0"
 
 [extras]
 Test = "8dfed614-e22c-5e08-85e1-65c5234f0b40"
+OffsetArrays = "6fe1bfb0-de20-5000-8ca7-80f57d26f881"
 
 [targets]
-test = ["Test"]
+test = ["Test", "OffsetArrays"]
