@@ -48,8 +48,7 @@ CircularArray(def::T, size) where T = CircularArray(fill(def, size))
 @inline Base.similar(arr::CircularArray, ::Type{T}, dims::Tuple{Int64,Vararg{Int64}}) where T = _similar(arr,T,dims)
 # Ambiguity resolution with a type-pirating OffsetArrays method. See OffsetArrays issue #87.
 # Ambiguity is triggered in the case similar(arr) where arr.data::OffsetArray.
-# The OffsetAxis definition is copied from OffsetArrays.
-const OffsetAxis = Union{Integer, UnitRange, Base.OneTo, Base.IdentityUnitRange, Colon}
+using OffsetArrays: OffsetAxis
 @inline Base.similar(arr::CircularArray, ::Type{T}, dims::Tuple{OffsetAxis, Vararg{OffsetAxis}}) where T = _similar(arr,T,dims)
 
 CircularVector(data::AbstractArray{T, 1}) where T = CircularVector{T}(data)
