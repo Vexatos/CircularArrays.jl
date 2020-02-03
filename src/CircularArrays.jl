@@ -12,8 +12,9 @@ export CircularArray, CircularVector
 
     array[index] == array[mod1(index, size)]
 """
-struct CircularArray{T, N} <: AbstractArray{T, N}
-    data::AbstractArray{T, N}
+struct CircularArray{T, N, A} <: AbstractArray{T, N}
+    data::A
+    CircularArray{T,N}(data::AbstractArray{T,N}) where {T,N} = new{T,N,typeof(data)}(data)
 end
 
 """
@@ -28,6 +29,8 @@ const CircularVector{T} = CircularArray{T, 1}
 
 @inline clamp_bounds(arr::CircularArray, I::Tuple{Vararg{Int}})::AbstractArray{Int, 1} = map(Base.splat(mod), zip(I, axes(arr.data)))
 
+CircularArray(data::AbstractArray{T,N}) where {T,N} = CircularArray{T,N}(data)
+CircularArray{T}(data::AbstractArray{T,N}) where {T,N} = CircularArray{T,N}(data)
 CircularArray(def::T, size) where T = CircularArray(fill(def, size))
 
 @inline Base.getindex(arr::CircularArray, i::Int) = @inbounds getindex(arr.data, mod(i, Base.axes1(arr.data)))
