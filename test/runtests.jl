@@ -5,23 +5,27 @@ using Test
 @test IndexStyle(CircularArray) == IndexCartesian()
 @test IndexStyle(CircularVector) == IndexLinear()
 
-@testset "construction ($T)" for T = (Float64, Int)
-    data = rand(T,10)
-    arrays = [CircularVector(data), CircularVector{T}(data),
-              CircularArray(data), CircularArray{T}(data), CircularArray{T,1}(data)]
-    @test all(a == first(arrays) for a in arrays)
-    @test all(a isa CircularVector{T,Vector{T}} for a in arrays)
+@testset "construction" begin
+    @testset "construction ($T)" for T = (Float64, Int)
+        data = rand(T,10)
+        arrays = [CircularVector(data), CircularVector{T}(data),
+                CircularArray(data), CircularArray{T}(data), CircularArray{T,1}(data)]
+        @test all(a == first(arrays) for a in arrays)
+        @test all(a isa CircularVector{T,Vector{T}} for a in arrays)
+    end
 end
 
-@testset "type stability $(n)d" for n in 1:10
-    a = CircularArray(fill(1, ntuple(_->1, n)))
+@testset "type stability" begin
+    @testset "type stability $(n)d" for n in 1:10
+        a = CircularArray(fill(1, ntuple(_->1, n)))
 
-    @test @inferred(a[1]) isa Int64
-    @test @inferred(a[[1]]) isa CircularVector{Int64}
-    @test @inferred(a[[1]']) isa CircularArray{Int64,2}
-    @test @inferred(axes(a)) isa Tuple{Vararg{AbstractUnitRange}}
-    @test @inferred(similar(a)) isa typeof(a)
-    @test @inferred(a[a]) isa typeof(a)
+        @test @inferred(a[1]) isa Int64
+        @test @inferred(a[[1]]) isa CircularVector{Int64}
+        @test @inferred(a[[1]']) isa CircularArray{Int64,2}
+        @test @inferred(axes(a)) isa Tuple{Vararg{AbstractUnitRange}}
+        @test @inferred(similar(a)) isa typeof(a)
+        @test @inferred(a[a]) isa typeof(a)
+    end
 end
 
 @testset "vector" begin
