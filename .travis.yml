@@ -7,3 +7,5 @@ os:
 julia:
     - 1.3
     - nightly
+
+codecov: true
