@@ -6,9 +6,9 @@ module CircularArrays
 export CircularArray, CircularVector
 
 """
-    CircularArray{T, N} <: AbstractArray{T, N}
+    CircularArray{T, N, A} <: AbstractArray{T, N}
 
-`N`-dimensional array backed by an AbstractArray{T, N} with fixed size and circular indexing.
+`N`-dimensional array backed by an `AbstractArray{T, N}` of type `A` with fixed size and circular indexing.
 
     array[index] == array[mod1(index, size)]
 """
@@ -18,10 +18,10 @@ struct CircularArray{T, N, A} <: AbstractArray{T, N}
 end
 
 """
-    CircularVector{T} <: AbstractVector{T}
+    CircularVector{T,A} <: AbstractVector{T}
 
-One-dimensional array backed by an AbstractArray{T, 1} with fixed size and circular indexing.
-Alias for [`CircularArray{T,1}`](@ref).
+One-dimensional array backed by an `AbstractArray{T, 1}` of type `A` with fixed size and circular indexing.
+Alias for [`CircularArray{T,1,A}`](@ref).
 
     array[index] == array[mod1(index, size)]
 """
