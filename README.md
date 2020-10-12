@@ -4,7 +4,7 @@
 [![codecov](https://codecov.io/gh/Vexatos/CircularArrays.jl/branch/master/graph/badge.svg)](https://codecov.io/gh/Vexatos/CircularArrays.jl)
 [![](https://img.shields.io/badge/docs-stable-blue.svg)](https://pkg.julialang.org/docs/CircularArrays/)
 
-CircularArrays.jl is a small package adding the `CircularArray` type which can be backed by any `AbstractArray`. A `CircularArray{T,N,A}` is an `AbstractArray{T,N}` backed by a data array of type `A`. It has a fixed size and features circular indexing across all dimensions: Indexing and assigning beyond its bounds in both directions is possible, as the end of the array is considered adjacent to its start. `CircularArray`s have the same `axes` as the underlying backing array, and iterators only iterate over these indices.
+CircularArrays.jl is a small package adding the `CircularArray` type which can be backed by any `AbstractArray`. A `CircularArray{T,N,A}` is an `AbstractArray{T,N}` backed by a data array of type `A`. It has a fixed size and features circular indexing (periodic boundary conditions) across all dimensions: Indexing and assigning beyond its bounds in both directions is possible, as the end of the array is considered adjacent to its start. `CircularArray`s have the same `axes` as the underlying backing array, and iterators only iterate over these indices.
 
 The `CircularVector{T}` type is added as an alias for `CircularArray{T, 1}`.
 
