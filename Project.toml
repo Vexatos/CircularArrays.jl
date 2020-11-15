@@ -11,7 +11,7 @@ version = "1.1.1"
 # It's listed as a dependency to allow a compat entry, since versions earlier
 # than OffsetArrays 1.3 would cause method ambiguities with this package,
 # which are triggered by similar(arr) when arr.data::OffsetArray.
-# See #3 and OffsetArrays#6.
+# See #3, #8 and OffsetArrays#6.
 OffsetArrays = "6fe1bfb0-de20-5000-8ca7-80f57d26f881"
 
 [compat]
