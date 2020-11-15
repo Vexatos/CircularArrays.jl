@@ -46,10 +46,6 @@ CircularArray(def::T, size) where T = CircularArray(fill(def, size))
 @inline Base.similar(arr::CircularArray, ::Type{T}, dims::Tuple{Base.DimOrInd, Vararg{Base.DimOrInd}}) where T = _similar(arr,T,dims)
 # Ambiguity resolution with Base
 @inline Base.similar(arr::CircularArray, ::Type{T}, dims::Tuple{Int64,Vararg{Int64}}) where T = _similar(arr,T,dims)
-# Ambiguity resolution with a type-pirating OffsetArrays method. See OffsetArrays issue #87.
-# Ambiguity is triggered in the case similar(arr) where arr.data::OffsetArray.
-using OffsetArrays: OffsetAxisKnownLength
-@inline Base.similar(arr::CircularArray, ::Type{T}, dims::Tuple{OffsetAxisKnownLength, Vararg{OffsetAxisKnownLength}}) where T = _similar(arr,T,dims)
 
 CircularVector(data::AbstractArray{T, 1}) where T = CircularVector{T}(data)
 CircularVector(def::T, size::Int) where T = CircularVector{T}(fill(def, size))
