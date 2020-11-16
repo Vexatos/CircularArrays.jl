@@ -4,11 +4,11 @@
 !/src
 !/test
 
+!/.github
+
 !/.gitignore
 !/LICENSE.md
 !/README.md
-
-!/.travis.yml
 
 !/REQUIRE
 !/Project.toml

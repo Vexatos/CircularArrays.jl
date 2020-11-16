@@ -1,7 +1,7 @@
 # CircularArrays.jl - Multi-dimensional arrays with fixed size and circular indexing
 
-[![Build Status](https://travis-ci.com/Vexatos/CircularArrays.jl.svg?branch=master)](https://travis-ci.com/Vexatos/CircularArrays.jl)
-[![codecov](https://codecov.io/gh/Vexatos/CircularArrays.jl/branch/master/graph/badge.svg)](https://codecov.io/gh/Vexatos/CircularArrays.jl)
+[![Build Status](https://github.com/Vexatos/CircularArrays.jl/workflows/Unit%20Test/badge.svg)](https://github.com/Vexatos/CircularArrays.jl/actions)
+[![codecov](https://codecov.io/github/Vexatos/CircularArrays.jl/coverage.svg?branch=master)](https://codecov.io/gh/Vexatos/CircularArrays.jl)
 [![](https://img.shields.io/badge/docs-stable-blue.svg)](https://juliahub.com/docs/CircularArrays/)
 
 CircularArrays.jl is a small package adding the `CircularArray` type which can be backed by any `AbstractArray`. A `CircularArray{T,N,A}` is an `AbstractArray{T,N}` backed by a data array of type `A`. It has a fixed size and features circular indexing (periodic boundary conditions) across all dimensions: Indexing and assigning beyond its bounds in both directions is possible, as the end of the array is considered adjacent to its start. `CircularArray`s have the same `axes` as the underlying backing array, and iterators only iterate over these indices.
