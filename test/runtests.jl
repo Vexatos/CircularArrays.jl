@@ -78,6 +78,10 @@ end
 
     a2 = CircularArray(4, (2, 3))
     @test isa(a2, CircularArray{Int, 2})
+
+    @test a1[2, 3, 1] == 17 # trailing index
+    @test a1[2, 3, 99] == 17
+    @test a1[2, 3, :] == [17]
 end
 
 @testset "offset indices" begin

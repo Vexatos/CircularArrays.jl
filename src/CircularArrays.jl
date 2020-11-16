@@ -27,18 +27,17 @@ Alias for [`CircularArray{T,1,A}`](@ref).
 """
 const CircularVector{T} = CircularArray{T, 1}
 
-@inline clamp_bounds(arr::CircularArray, I::Tuple{Vararg{Int}})::AbstractArray{Int, 1} = map(Base.splat(mod), zip(I, axes(arr.data)))
-
 CircularArray(data::AbstractArray{T,N}) where {T,N} = CircularArray{T,N}(data)
 CircularArray{T}(data::AbstractArray{T,N}) where {T,N} = CircularArray{T,N}(data)
 CircularArray(def::T, size) where T = CircularArray(fill(def, size))
 
-@inline Base.getindex(arr::CircularArray, i::Int) = @inbounds getindex(arr.data, mod(i, Base.axes1(arr.data)))
-@inline Base.setindex!(arr::CircularArray, v, i::Int) = @inbounds setindex!(arr.data, v, mod(i, Base.axes1(arr.data)))
-@inline Base.getindex(arr::CircularArray, I::Vararg{Int}) = @inbounds getindex(arr.data, clamp_bounds(arr, I)...)
-@inline Base.setindex!(arr::CircularArray, v, I::Vararg{Int}) = @inbounds setindex!(arr.data, v, clamp_bounds(arr, I)...)
+@inline Base.getindex(arr::CircularArray{T,N}, I::Vararg{<:Integer,N}) where {T,N} =
+    @inbounds getindex(arr.data, mod.(I, axes(arr))...)
+@inline Base.setindex!(arr::CircularArray{T,N}, v, I::Vararg{<:Integer,N}) where {T,N} =
+    @inbounds setindex!(arr.data, v, mod.(I, axes(arr))...)
 @inline Base.size(arr::CircularArray) = size(arr.data)
 @inline Base.axes(arr::CircularArray) = axes(arr.data)
+Base.parent(arr::CircularArray) = arr.data
 
 @inline Base.checkbounds(::CircularArray, _...) = nothing
 
