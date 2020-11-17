@@ -32,12 +32,12 @@ CircularArray{T}(data::AbstractArray{T,N}) where {T,N} = CircularArray{T,N}(data
 CircularArray(def::T, size) where T = CircularArray(fill(def, size))
 
 @inline Base.getindex(arr::CircularArray, i::Integer) =
-    @inbounds getindex(arr.data, mod(i, eachindex(LinearIndices(arr.data))))
+    @inbounds getindex(arr.data, mod1(i, length(arr.data)))
 @inline Base.getindex(arr::CircularArray{T,N}, I::Vararg{<:Integer,N}) where {T,N} =
     @inbounds getindex(arr.data, map(mod, I, axes(arr.data))...)
 
 @inline Base.setindex!(arr::CircularArray, v, i::Integer) =
-    @inbounds setindex!(arr.data, v, mod(i, eachindex(LinearIndices(arr.data))))
+    @inbounds setindex!(arr.data, v, mod1(i, length(arr.data)))
 @inline Base.setindex!(arr::CircularArray{T,N}, v, I::Vararg{<:Integer,N}) where {T,N} =
     @inbounds setindex!(arr.data, v, map(mod, I, axes(arr.data))...)
 
@@ -47,8 +47,7 @@ Base.parent(arr::CircularArray) = arr.data
 
 @inline function Base.checkbounds(arr::CircularArray, I...)
     J = Base.to_indices(arr, I)
-    length(J) == 1 && return nothing
-    length(J) >= ndims(arr) && return nothing
+    (length(J) == 1 || length(J) >= ndims(arr)) && return nothing
     throw(BoundsError(arr, I))
 end
 
