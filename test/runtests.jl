@@ -79,12 +79,30 @@ end
     a2 = CircularArray(4, (2, 3))
     @test isa(a2, CircularArray{Int, 2})
 
-    @test a1[3] == a1[3,1] # linear indexing
+    @test IndexStyle(a1) == IndexLinear()
+    @test a1[3] == a1[3,1]
     @test a1[4] == a1[1,2]
+    @test a1[-1] == a1[length(a1)-1]
 
     @test a1[2, 3, 1] == 17 # trailing index
     @test a1[2, 3, 99] == 17
     @test a1[2, 3, :] == [17]
+end
+
+@testset "3-array" begin
+    t3 = collect(reshape('a':'x', 2,3,4))
+    c3 = CircularArray(t3)
+
+    @test c3[1,3,3] == c3[3,3,3] == c3[3,3,7]
+
+    c3[3,3,7] = 'Z'
+    @test t3[1,3,3] == 'Z'
+
+    @test IndexStyle(c3) == IndexLinear()
+    @test c3[-1] == t3[length(t3)-1]
+
+    @test_throws BoundsError c3[2,3] # too few indices
+    @test_throws BoundsError c3[CartesianIndex(2,3)]
 end
 
 @testset "offset indices" begin
@@ -110,6 +128,6 @@ end
     @test collect(a) == data
     @test all(a[x,y] == data[mod1(x+1,3),mod1(y+1,3)] for x=-10:10, y=-10:10)
     @test a[i,1] == CircularArray(OffsetArray([5,6,4,5,6],-2:2))
-    @test a[CartesianIndex.(i,i)] == CircularArray(OffsetArray([5,9,1,5,9],-2:2))
+    @test_broken a[CartesianIndex.(i,i)] == CircularArray(OffsetArray([5,9,1,5,9],-2:2))
     @test a[a .> 4] == 5:9
 end

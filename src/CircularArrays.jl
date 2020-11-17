@@ -31,15 +31,26 @@ CircularArray(data::AbstractArray{T,N}) where {T,N} = CircularArray{T,N}(data)
 CircularArray{T}(data::AbstractArray{T,N}) where {T,N} = CircularArray{T,N}(data)
 CircularArray(def::T, size) where T = CircularArray(fill(def, size))
 
+@inline Base.getindex(arr::CircularArray, i::Integer) =
+    @inbounds getindex(arr.data, mod(i, eachindex(LinearIndices(arr.data))))
 @inline Base.getindex(arr::CircularArray{T,N}, I::Vararg{<:Integer,N}) where {T,N} =
     @inbounds getindex(arr.data, mod.(I, axes(arr))...)
+
+@inline Base.setindex!(arr::CircularArray, v, i::Integer) =
+    @inbounds setindex!(arr.data, v, mod(i, eachindex(LinearIndices(arr.data))))
 @inline Base.setindex!(arr::CircularArray{T,N}, v, I::Vararg{<:Integer,N}) where {T,N} =
     @inbounds setindex!(arr.data, v, mod.(I, axes(arr))...)
+
 @inline Base.size(arr::CircularArray) = size(arr.data)
 @inline Base.axes(arr::CircularArray) = axes(arr.data)
 Base.parent(arr::CircularArray) = arr.data
 
-@inline Base.checkbounds(::CircularArray, _...) = nothing
+@inline function Base.checkbounds(arr::CircularArray, I...)
+    J = Base.to_indices(arr, I)
+    length(J) == 1 && return nothing
+    length(J) >= ndims(arr) && return nothing
+    throw(BoundsError(arr, I))
+end
 
 @inline _similar(arr::CircularArray, ::Type{T}, dims) where T = CircularArray(similar(arr.data,T,dims))
 @inline Base.similar(arr::CircularArray, ::Type{T}, dims::Tuple{Base.DimOrInd, Vararg{Base.DimOrInd}}) where T = _similar(arr,T,dims)
@@ -49,6 +60,7 @@ Base.parent(arr::CircularArray) = arr.data
 CircularVector(data::AbstractArray{T, 1}) where T = CircularVector{T}(data)
 CircularVector(def::T, size::Int) where T = CircularVector{T}(fill(def, size))
 
+Base.IndexStyle(::Type{CircularArray{T,N,A}}) where {T,N,A} = IndexStyle(A)
 Base.IndexStyle(::Type{<:CircularVector}) = IndexLinear()
 
 end
