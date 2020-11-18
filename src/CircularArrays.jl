@@ -35,24 +35,30 @@ CircularArray(def::T, size) where T = CircularArray(fill(def, size))
     @inbounds getindex(arr.data, mod1(i, length(arr.data)))
 @inline Base.getindex(arr::CircularArray{T,N}, I::Vararg{<:Int,N}) where {T,N} =
     @inbounds getindex(arr.data, map(mod, I, axes(arr.data))...)
-@inline Base._getindex(::IndexLinear, arr::CircularArray{T,N}, I::Vararg{<:Int,N}) where {T,N} =
-    @inbounds Base._getindex(IndexLinear(), arr.data, map(mod, I, axes(arr.data))...)
 
 @inline Base.setindex!(arr::CircularArray, v, i::Int) =
     @inbounds setindex!(arr.data, v, mod1(i, length(arr.data)))
 @inline Base.setindex!(arr::CircularArray{T,N}, v, I::Vararg{<:Int,N}) where {T,N} =
     @inbounds setindex!(arr.data, v, map(mod, I, axes(arr.data))...)
-@inline Base._setindex!(::IndexLinear, arr::CircularArray{T,N}, v, I::Vararg{<:Int,N}) where {T,N} =
-    @inbounds Base._setindex!(IndexLinear(), arr.data, v, map(mod, I, axes(arr.data))...)
 
 @inline Base.size(arr::CircularArray) = size(arr.data)
 @inline Base.axes(arr::CircularArray) = axes(arr.data)
 Base.parent(arr::CircularArray) = arr.data
 
+@inline function Base.to_indices(arr::CircularArray, ax, I::Tuple{CartesianIndex{M}, Vararg{Any}}) where {M}
+    J = ntuple(d -> mod(I[1].I[d], ax[d]), Val(M))
+    Base.to_indices(arr, ax[M:end], (J..., Base.tail(I)...))
+end
+@inline Base.to_indices(arr::CircularArray, I::Tuple{Vararg{Union{Integer, CartesianIndex}}}) =
+    to_indices(arr, axes(arr), I) # this method would normally omit axes, but we need them.
+# and then these two are needed to solve ambiguity:
+@inline Base.to_indices(arr::CircularArray, I::Tuple{Vararg{Int}}) = I
+@inline Base.to_indices(arr::CircularArray, I::Tuple{Vararg{Integer}}) = to_indices(arr, (), I)
+
 @inline function Base.checkbounds(arr::CircularArray, I...)
     J = Base.to_indices(arr, I)
-    (length(J) == 1 || length(J) >= ndims(arr)) && return nothing
-    throw(BoundsError(arr, I))
+    length(J) == 1 || length(J) >= ndims(arr) || throw(BoundsError(arr, I))
+    nothing
 end
 
 @inline _similar(arr::CircularArray, ::Type{T}, dims) where T = CircularArray(similar(arr.data,T,dims))
