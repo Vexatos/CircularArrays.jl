@@ -69,16 +69,11 @@ end
     a1[2, 3] = 17
     @test a1[2, 3] == 17
     @test a1[-1, 7] == 17
+    @test a1[CartesianIndex(-1, 7)] == 17
     @test a1[-1:5, 4:10][1, 4] == 17
     @test a1[:, -1:-1][2, 1] == 17
-    @test !isa(a1, CircularVector)
-    @test !isa(a1, AbstractVector)
-    @test isa(a1, AbstractArray)
-
-    @test size(reshape(a1, (2, 2, 3))) == (2, 2, 3)
-
-    a2 = CircularArray(4, (2, 3))
-    @test isa(a2, CircularArray{Int, 2})
+    a1[CartesianIndex(-2, 7)] = 99
+    @test a1[1, 3] == 99
 
     @test IndexStyle(a1) == IndexLinear()
     @test a1[3] == a1[3,1]
@@ -88,6 +83,15 @@ end
     @test a1[2, 3, 1] == 17 # trailing index
     @test a1[2, 3, 99] == 17
     @test a1[2, 3, :] == [17]
+
+    @test !isa(a1, CircularVector)
+    @test !isa(a1, AbstractVector)
+    @test isa(a1, AbstractArray)
+
+    @test size(reshape(a1, (2, 2, 3))) == (2, 2, 3)
+
+    a2 = CircularArray(4, (2, 3))
+    @test isa(a2, CircularArray{Int, 2})
 end
 
 @testset "3-array" begin
@@ -129,6 +133,6 @@ end
     @test collect(a) == data
     @test all(a[x,y] == data[mod1(x+1,3),mod1(y+1,3)] for x=-10:10, y=-10:10)
     @test a[i,1] == CircularArray(OffsetArray([5,6,4,5,6],-2:2))
-    @test_broken a[CartesianIndex.(i,i)] == CircularArray(OffsetArray([5,9,1,5,9],-2:2))
+    @test a[CartesianIndex.(i,i)] == CircularArray(OffsetArray([5,9,1,5,9],-2:2))
     @test a[a .> 4] == 5:9
 end
