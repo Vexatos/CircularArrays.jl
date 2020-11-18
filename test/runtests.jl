@@ -65,6 +65,7 @@ end
     a1 = CircularArray(b_arr)
     @test size(a1) == (3, 4)
     @test a1[2, 3] == 14
+    @test a1[2, Int32(3)] == 14
     a1[2, 3] = 17
     @test a1[2, 3] == 17
     @test a1[-1, 7] == 17
@@ -81,7 +82,7 @@ end
 
     @test IndexStyle(a1) == IndexLinear()
     @test a1[3] == a1[3,1]
-    @test a1[4] == a1[1,2]
+    @test a1[Int32(4)] == a1[1,2]
     @test a1[-1] == a1[length(a1)-1]
 
     @test a1[2, 3, 1] == 17 # trailing index

@@ -31,14 +31,14 @@ CircularArray(data::AbstractArray{T,N}) where {T,N} = CircularArray{T,N}(data)
 CircularArray{T}(data::AbstractArray{T,N}) where {T,N} = CircularArray{T,N}(data)
 CircularArray(def::T, size) where T = CircularArray(fill(def, size))
 
-@inline Base.getindex(arr::CircularArray, i::Integer) =
+@inline Base.getindex(arr::CircularArray, i::Int) =
     @inbounds getindex(arr.data, mod1(i, length(arr.data)))
-@inline Base.getindex(arr::CircularArray{T,N}, I::Vararg{<:Integer,N}) where {T,N} =
+@inline Base.getindex(arr::CircularArray{T,N}, I::Vararg{<:Int,N}) where {T,N} =
     @inbounds getindex(arr.data, map(mod, I, axes(arr.data))...)
 
-@inline Base.setindex!(arr::CircularArray, v, i::Integer) =
+@inline Base.setindex!(arr::CircularArray, v, i::Int) =
     @inbounds setindex!(arr.data, v, mod1(i, length(arr.data)))
-@inline Base.setindex!(arr::CircularArray{T,N}, v, I::Vararg{<:Integer,N}) where {T,N} =
+@inline Base.setindex!(arr::CircularArray{T,N}, v, I::Vararg{<:Int,N}) where {T,N} =
     @inbounds setindex!(arr.data, v, map(mod, I, axes(arr.data))...)
 
 @inline Base.size(arr::CircularArray) = size(arr.data)
