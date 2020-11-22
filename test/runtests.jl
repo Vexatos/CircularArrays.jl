@@ -98,10 +98,16 @@ end
     t3 = collect(reshape('a':'x', 2,3,4))
     c3 = CircularArray(t3)
 
-    @test c3[1,3,3] == c3[3,3,3] == c3[3,3,7]
+    @test c3[1,3,3] == c3[3,3,3] == c3[3,3,7] == c3[3,3,7,1]
 
     c3[3,3,7] = 'Z'
     @test t3[1,3,3] == 'Z'
+
+    @test c3[3, CartesianIndex(3,7)] == 'Z'
+    c3[Int32(3), CartesianIndex(3,7)] = 'ζ'
+    @test t3[1,3,3] == 'ζ'
+
+    @test vec(c3[:, [CartesianIndex()], 1, 5]) == vec(t3[:, 1, 1])
 
     @test IndexStyle(c3) == IndexLinear()
     @test c3[-1] == t3[length(t3)-1]
