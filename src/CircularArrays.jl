@@ -45,24 +45,6 @@ CircularArray(def::T, size) where T = CircularArray(fill(def, size))
 @inline Base.axes(arr::CircularArray) = axes(arr.data)
 Base.parent(arr::CircularArray) = arr.data
 
-@inline function Base.to_indices(arr::CircularArray, ax, I::Tuple{Integer, Vararg{Any}})
-    J = mod(I[1], ax[1])
-    (J, Base.to_indices(arr, Base.tail(ax), Base.tail(I))...)
-end
-@inline function Base.to_indices(arr::CircularArray, ax::Tuple{}, I::Tuple{Integer, Vararg{Any}})
-    (1, Base.to_indices(arr, ax, (Base.tail(I)))...)
-end
-@inline function Base.to_indices(arr::CircularArray, ax, I::Tuple{CartesianIndex{M}, Vararg{Any}}) where {M}
-    J = ntuple(d -> mod(I[1].I[d], ax[d]), Val(M))
-    (J..., Base.to_indices(arr, ax[M:end], Base.tail(I))...)
-end
-@inline Base.to_indices(arr::CircularArray, I::Tuple{Vararg{Union{Integer, CartesianIndex}}}) =
-    Base.to_indices(arr, axes(arr.data), I) # this method would normally omit axes
-@inline Base.to_indices(arr::CircularArray, I::Tuple{Vararg{Int}}) =
-    Base.to_indices(arr, axes(arr.data), I) # this method would otherwise just return I
-@inline Base.to_indices(arr::CircularArray, I::Tuple{Vararg{Integer}}) =
-    Base.to_indices(arr, axes(arr.data), I)
-
 @inline function Base.checkbounds(arr::CircularArray, I...)
     J = Base.to_indices(arr, I)
     length(J) == 1 || length(J) >= ndims(arr) || throw(BoundsError(arr, I))
@@ -77,7 +59,7 @@ end
 CircularVector(data::AbstractArray{T, 1}) where T = CircularVector{T}(data)
 CircularVector(def::T, size::Int) where T = CircularVector{T}(fill(def, size))
 
-Base.IndexStyle(::Type{CircularArray{T,N,A}}) where {T,N,A} = IndexStyle(A)
+Base.IndexStyle(::Type{CircularArray{T,N,A}}) where {T,N,A} = IndexCartesian()
 Base.IndexStyle(::Type{<:CircularVector}) = IndexLinear()
 
 function Base.showarg(io::IO, arr::CircularArray, toplevel)

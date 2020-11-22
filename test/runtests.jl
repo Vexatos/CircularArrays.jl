@@ -39,6 +39,7 @@ end
     @test !isa(v1, AbstractVector{String})
     @test v1[2] == v1[2 + length(v1)]
 
+    @test IndexStyle(v1) == IndexLinear()
     @test v1[0] == data[end]
     @test v1[-4:10] == [data; data; data]
     @test v1[-3:1][-1] == data[end]
@@ -75,7 +76,7 @@ end
     a1[CartesianIndex(-2, 7)] = 99
     @test a1[1, 3] == 99
 
-    @test IndexStyle(a1) == IndexLinear()
+    @test IndexStyle(a1) == IndexCartesian()
     @test a1[3] == a1[3,1]
     @test a1[Int32(4)] == a1[1,2]
     @test a1[-1] == a1[length(a1)-1]
@@ -109,7 +110,7 @@ end
 
     @test vec(c3[:, [CartesianIndex()], 1, 5]) == vec(t3[:, 1, 1])
 
-    @test IndexStyle(c3) == IndexLinear()
+    @test IndexStyle(c3) == IndexCartesian()
     @test c3[-1] == t3[length(t3)-1]
 
     @test_throws BoundsError c3[2,3] # too few indices
