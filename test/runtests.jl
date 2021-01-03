@@ -45,7 +45,9 @@ end
         print(io_compare, summary(data))
 
         text = String(take!(io_compare))
-        text = replace(text, "Array" => (n == 1 ? "CircularVector" : "CircularArray"))
+        text = replace(text, " Vector" => " CircularVector")
+        text = replace(text, " Matrix" => " CircularArray")
+        text = replace(text, " Array" => (n == 1 ? " CircularVector" : " CircularArray"))
         text = replace(text, r"{.+}" => "(::$(string(typeof(data))))")
         @test String(take!(io)) == text
     end
