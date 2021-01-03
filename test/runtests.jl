@@ -2,8 +2,10 @@ using CircularArrays
 using OffsetArrays
 using Test
 
-@test IndexStyle(CircularArray) == IndexCartesian()
-@test IndexStyle(CircularVector) == IndexLinear()
+@testset "index style" begin
+    @test IndexStyle(CircularArray) == IndexCartesian()
+    @test IndexStyle(CircularVector) == IndexLinear()
+end
 
 @testset "construction" begin
     @testset "construction ($T)" for T = (Float64, Int)
@@ -28,18 +30,40 @@ end
     end
 end
 
+@testset "display" begin
+    @testset "display $(n)d" for n in 1:3
+        data = rand(Int64, ntuple(_->3, n))
+        v1 = CircularArray(data)
+        io = IOBuffer()
+        io_compare = IOBuffer()
+
+        print(io, v1)
+        print(io_compare, data)
+        @test String(take!(io)) == String(take!(io_compare))
+
+        print(io, summary(v1))
+        print(io_compare, summary(data))
+
+        text = String(take!(io_compare))
+        text = replace(text, "Array" => (n == 1 ? "CircularVector" : "CircularArray"))
+        text = replace(text, r"{.+}" => "(::$(string(typeof(data))))")
+        @test String(take!(io)) == text
+    end
+end
+
 @testset "vector" begin
     data = rand(Int64, 5)
     v1 = CircularVector(data)
 
     @test size(v1, 1) == 5
+    @test parent(v1) == data
     @test typeof(v1) == CircularVector{Int64,Vector{Int64}}
     @test isa(v1, CircularVector)
     @test isa(v1, AbstractVector{Int})
     @test !isa(v1, AbstractVector{String})
     @test v1[2] == v1[2 + length(v1)]
 
-    @test IndexStyle(v1) == IndexLinear()
+    @test IndexStyle(v1) == IndexStyle(typeof(v1)) == IndexLinear()
     @test v1[0] == data[end]
     @test v1[-4:10] == [data; data; data]
     @test v1[-3:1][-1] == data[end]
@@ -65,6 +89,7 @@ end
     b_arr = [2 4 6 8; 10 12 14 16; 18 20 22 24]
     a1 = CircularArray(b_arr)
     @test size(a1) == (3, 4)
+    @test parent(a1) == b_arr
     @test a1[2, 3] == 14
     @test a1[2, Int32(3)] == 14
     a1[2, 3] = 17
@@ -76,7 +101,7 @@ end
     a1[CartesianIndex(-2, 7)] = 99
     @test a1[1, 3] == 99
 
-    @test IndexStyle(a1) == IndexCartesian()
+    @test IndexStyle(a1) == IndexStyle(typeof(a1)) == IndexCartesian()
     @test a1[3] == a1[3,1]
     @test a1[Int32(4)] == a1[1,2]
     @test a1[-1] == a1[length(a1)-1]
@@ -99,6 +124,8 @@ end
     t3 = collect(reshape('a':'x', 2,3,4))
     c3 = CircularArray(t3)
 
+    @test parent(c3) == t3
+
     @test c3[1,3,3] == c3[3,3,3] == c3[3,3,7] == c3[3,3,7,1]
 
     c3[3,3,7] = 'Z'
@@ -110,7 +137,7 @@ end
 
     @test vec(c3[:, [CartesianIndex()], 1, 5]) == vec(t3[:, 1, 1])
 
-    @test IndexStyle(c3) == IndexCartesian()
+    @test IndexStyle(c3) == IndexStyle(typeof(c3)) == IndexCartesian()
     @test c3[-1] == t3[length(t3)-1]
 
     @test_throws BoundsError c3[2,3] # too few indices
