@@ -39,6 +39,7 @@ end
     @test !isa(v1, AbstractVector{String})
     @test v1[2] == v1[2 + length(v1)]
 
+    @test IndexStyle(v1) == IndexLinear()
     @test v1[0] == data[end]
     @test v1[-4:10] == [data; data; data]
     @test v1[-3:1][-1] == data[end]
@@ -65,11 +66,25 @@ end
     a1 = CircularArray(b_arr)
     @test size(a1) == (3, 4)
     @test a1[2, 3] == 14
+    @test a1[2, Int32(3)] == 14
     a1[2, 3] = 17
     @test a1[2, 3] == 17
     @test a1[-1, 7] == 17
+    @test a1[CartesianIndex(-1, 7)] == 17
     @test a1[-1:5, 4:10][1, 4] == 17
     @test a1[:, -1:-1][2, 1] == 17
+    a1[CartesianIndex(-2, 7)] = 99
+    @test a1[1, 3] == 99
+
+    @test IndexStyle(a1) == IndexCartesian()
+    @test a1[3] == a1[3,1]
+    @test a1[Int32(4)] == a1[1,2]
+    @test a1[-1] == a1[length(a1)-1]
+
+    @test a1[2, 3, 1] == 17 # trailing index
+    @test a1[2, 3, 99] == 17
+    @test a1[2, 3, :] == [17]
+
     @test !isa(a1, CircularVector)
     @test !isa(a1, AbstractVector)
     @test isa(a1, AbstractArray)
@@ -78,6 +93,28 @@ end
 
     a2 = CircularArray(4, (2, 3))
     @test isa(a2, CircularArray{Int, 2})
+end
+
+@testset "3-array" begin
+    t3 = collect(reshape('a':'x', 2,3,4))
+    c3 = CircularArray(t3)
+
+    @test c3[1,3,3] == c3[3,3,3] == c3[3,3,7] == c3[3,3,7,1]
+
+    c3[3,3,7] = 'Z'
+    @test t3[1,3,3] == 'Z'
+
+    @test c3[3, CartesianIndex(3,7)] == 'Z'
+    c3[Int32(3), CartesianIndex(3,7)] = 'ζ'
+    @test t3[1,3,3] == 'ζ'
+
+    @test vec(c3[:, [CartesianIndex()], 1, 5]) == vec(t3[:, 1, 1])
+
+    @test IndexStyle(c3) == IndexCartesian()
+    @test c3[-1] == t3[length(t3)-1]
+
+    @test_throws BoundsError c3[2,3] # too few indices
+    @test_throws BoundsError c3[CartesianIndex(2,3)]
 end
 
 @testset "offset indices" begin
