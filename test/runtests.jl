@@ -172,3 +172,11 @@ end
     @test a[CartesianIndex.(i,i)] == CircularArray(OffsetArray([5,9,1,5,9],-2:2))
     @test a[a .> 4] == 5:9
 end
+
+@testset "deleteat!" begin
+    a = CircularArray([1,2,3]);
+    @test deleteat!(a, 5) == CircularVector([1, 3])
+    
+    b = CircularArray([1,2,3,4]);
+    @test deleteat!(a, 1:5:10) == CircularVector([3, 4])
+end
