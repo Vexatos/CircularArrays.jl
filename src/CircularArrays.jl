@@ -65,4 +65,12 @@ function Base.showarg(io::IO, arr::CircularArray, toplevel)
     # toplevel && print(io, " with eltype ", eltype(arr))
 end
 
+function Base.deleteat!(a::CircularVector, inds)
+    (CircularVector ∘ deleteat!)(a.data, (unique ∘ sort ∘ map)(i -> mod(i, eachindex(a.data)), inds))
+end
+
+function Base.deleteat!(a::CircularVector, i::Integer)
+    (CircularVector ∘ deleteat!)(a.data, mod(i, eachindex(a.data)))
+end
+
 end
