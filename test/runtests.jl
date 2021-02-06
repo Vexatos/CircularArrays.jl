@@ -178,5 +178,5 @@ end
     @test deleteat!(a, 5) == CircularVector([1, 3])
     
     b = CircularArray([1,2,3,4]);
-    @test deleteat!(a, 1:5:10) == CircularVector([3, 4])
+    @test deleteat!(b, 1:5:10) == CircularVector([3, 4])
 end
