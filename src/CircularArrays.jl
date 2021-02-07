@@ -27,8 +27,19 @@ Alias for [`CircularArray{T,1,A}`](@ref).
 """
 const CircularVector{T} = CircularArray{T, 1}
 
+"""
+    CircularArray(data)
+
+Create a `CircularArray` wrapping the array `data`.
+"""
 CircularArray(data::AbstractArray{T,N}) where {T,N} = CircularArray{T,N}(data)
 CircularArray{T}(data::AbstractArray{T,N}) where {T,N} = CircularArray{T,N}(data)
+
+"""
+    CircularArray(def, size)
+
+Create a `CircularArray` of size `size` filled with value `def`.
+"""
 CircularArray(def::T, size) where T = CircularArray(fill(def, size))
 
 @inline Base.getindex(arr::CircularArray, i::Int) = @inbounds getindex(arr.data, mod(i, eachindex(IndexLinear(), arr.data)))
@@ -52,7 +63,18 @@ end
 # Ambiguity resolution with Base
 @inline Base.similar(arr::CircularArray, ::Type{T}, dims::Tuple{Int64,Vararg{Int64}}) where T = _similar(arr,T,dims)
 
+"""
+    CircularVector(data)
+
+Create a `CircularVector` wrapping the array `data`.
+"""
 CircularVector(data::AbstractArray{T, 1}) where T = CircularVector{T}(data)
+
+"""
+    CircularVector(def, size)
+
+Create a `CircularVector` of size `size` filled with value `def`.
+"""
 CircularVector(def::T, size::Int) where T = CircularVector{T}(fill(def, size))
 
 Base.IndexStyle(::Type{CircularArray{T,N,A}}) where {T,N,A} = IndexCartesian()
