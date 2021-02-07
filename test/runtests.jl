@@ -85,6 +85,16 @@ end
     @test prod(v2) == "abcde"^5
 
     @test_throws MethodError push!(v1, 15)
+
+    @testset "deleteat!" begin
+        @test deleteat!(CircularVector([1, 2, 3]), 5) == CircularVector([1, 3])
+        @test deleteat!(CircularVector([1, 2, 3, 4]), 1:5:10) == CircularVector([3, 4])
+        @test deleteat!(CircularVector([1, 2, 3, 4]), [1, 5]) == CircularVector([2, 3, 4])
+        @test deleteat!(CircularVector([1, 2, 3, 4]), (1, 5)) == CircularVector([2, 3, 4])
+        @test deleteat!(CircularVector([1, 2, 3, 4]), (1, 6)) == CircularVector([3, 4])
+        @test deleteat!(CircularVector([1, 2, 3, 4]), (1, 3, 5)) == CircularVector([2, 4])
+        @test deleteat!(CircularVector([1, 2, 3, 4]), (1, 5, 7)) == CircularVector([2, 4])
+    end
 end
 
 @testset "matrix" begin
@@ -171,15 +181,4 @@ end
     @test a[i,1] == CircularArray(OffsetArray([5,6,4,5,6],-2:2))
     @test a[CartesianIndex.(i,i)] == CircularArray(OffsetArray([5,9,1,5,9],-2:2))
     @test a[a .> 4] == 5:9
-end
-
-@testset "deleteat!" begin
-    a = CircularArray([1,2,3]);
-    @test deleteat!(a, 5) == CircularVector([1, 3])
-    
-    b = CircularArray([1,2,3,4]);
-    @test deleteat!(b, 1:5:10) == CircularVector([3, 4])
-    
-    c = CircularArray([1,2,3,4]);
-    @test deleteat!(c, (1, 6)) == CircularVector([3, 4])
 end
