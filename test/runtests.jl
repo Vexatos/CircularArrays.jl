@@ -179,4 +179,7 @@ end
     
     b = CircularArray([1,2,3,4]);
     @test deleteat!(b, 1:5:10) == CircularVector([3, 4])
+    
+    c = CircularArray([1,2,3,4]);
+    @test deleteat!(b, (6, 10)) == CircularVector([3, 4])
 end
