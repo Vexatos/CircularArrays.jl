@@ -66,14 +66,12 @@ function Base.showarg(io::IO, arr::CircularArray, toplevel)
 end
 
 function Base.deleteat!(a::CircularVector, i::Integer)
-    j = firstindex(a) === 1 ? mod1(i, length(a.data)) : mod(i, eachindex(a.data))
-    deleteat!(a.data, j)
+    deleteat!(a.data, mod(i, eachindex(a.data)))
     a
 end
 
 function Base.deleteat!(a::CircularVector, inds)
-    jnds = firstindex(a) === 1 ? mod1.(inds, length(a)) : map(i -> mod(i, eachindex(a.data)))
-    deleteat!(a.data, sort(unique(jnds)))
+    deleteat!(a.data, sort!(unique(map(i -> mod(i, eachindex(a.data))))))
     a
 end
 
