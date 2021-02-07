@@ -71,7 +71,7 @@ function Base.deleteat!(a::CircularVector, i::Integer)
 end
 
 function Base.deleteat!(a::CircularVector, inds)
-    deleteat!(a.data, sort!(unique(map(i -> mod(i, eachindex(a.data))))))
+    deleteat!(a.data, (sort! ∘ unique ∘ map)(i -> mod(i, eachindex(a.data)), inds))
     a
 end
 
