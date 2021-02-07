@@ -42,6 +42,9 @@ Create a `CircularArray` of size `size` filled with value `def`.
 """
 CircularArray(def::T, size) where T = CircularArray(fill(def, size))
 
+Base.IndexStyle(::Type{CircularArray{T,N,A}}) where {T,N,A} = IndexCartesian()
+Base.IndexStyle(::Type{<:CircularVector}) = IndexLinear()
+
 @inline Base.getindex(arr::CircularArray, i::Int) = @inbounds getindex(arr.data, mod(i, eachindex(IndexLinear(), arr.data)))
 @inline Base.getindex(arr::CircularArray{T,N,A}, I::Vararg{<:Int,N}) where {T,N,A} = @inbounds getindex(arr.data, mod.(I, axes(arr.data))...)
 
@@ -63,6 +66,13 @@ end
 # Ambiguity resolution with Base
 @inline Base.similar(arr::CircularArray, ::Type{T}, dims::Tuple{Int64,Vararg{Int64}}) where T = _similar(arr,T,dims)
 
+function Base.showarg(io::IO, arr::CircularArray, toplevel)
+    print(io, ndims(arr) == 1 ? "CircularVector(" : "CircularArray(")
+    Base.showarg(io, parent(arr), false)
+    print(io, ')')
+    # toplevel && print(io, " with eltype ", eltype(arr))
+end
+
 """
     CircularVector(data)
 
@@ -76,16 +86,6 @@ CircularVector(data::AbstractArray{T, 1}) where T = CircularVector{T}(data)
 Create a `CircularVector` of size `size` filled with value `def`.
 """
 CircularVector(def::T, size::Int) where T = CircularVector{T}(fill(def, size))
-
-Base.IndexStyle(::Type{CircularArray{T,N,A}}) where {T,N,A} = IndexCartesian()
-Base.IndexStyle(::Type{<:CircularVector}) = IndexLinear()
-
-function Base.showarg(io::IO, arr::CircularArray, toplevel)
-    print(io, ndims(arr) == 1 ? "CircularVector(" : "CircularArray(")
-    Base.showarg(io, parent(arr), false)
-    print(io, ')')
-    # toplevel && print(io, " with eltype ", eltype(arr))
-end
 
 function Base.deleteat!(a::CircularVector, i::Integer)
     deleteat!(a.data, mod(i, eachindex(IndexLinear(), a.data)))
