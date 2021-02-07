@@ -95,6 +95,13 @@ end
         @test deleteat!(CircularVector([1, 2, 3, 4]), (1, 3, 5)) == CircularVector([2, 4])
         @test deleteat!(CircularVector([1, 2, 3, 4]), (1, 5, 7)) == CircularVector([2, 4])
     end
+
+    @testset "doubly circular" begin
+        a = CircularVector([1, 2, 3, 4, 5])
+        b = CircularVector(a)
+
+        @test all(a[i] == b[i] for i in -50:50)
+    end
 end
 
 @testset "matrix" begin
@@ -113,6 +120,9 @@ end
     a1[CartesianIndex(-2, 7)] = 99
     @test a1[1, 3] == 99
 
+    a1[18] = 9
+    @test a1[18] == a1[-6] == a1[6] == a1[3,2] == a1[0,6] == b_arr[3,2] == b_arr[6] == 9
+
     @test IndexStyle(a1) == IndexStyle(typeof(a1)) == IndexCartesian()
     @test a1[3] == a1[3,1]
     @test a1[Int32(4)] == a1[1,2]
@@ -130,6 +140,14 @@ end
 
     a2 = CircularArray(4, (2, 3))
     @test isa(a2, CircularArray{Int, 2})
+
+    @testset "doubly circular" begin
+        a = CircularArray(b_arr)
+        da = CircularArray(a)
+
+        @test all(a[i, j] == da[i, j] for i in -8:8, j in -8:8)
+        @test all(a[i] == da[i] for i in -50:50)
+    end
 end
 
 @testset "3-array" begin
@@ -147,6 +165,9 @@ end
     c3[Int32(3), CartesianIndex(3,7)] = 'ζ'
     @test t3[1,3,3] == 'ζ'
 
+    c3[34] = 'J'
+    @test c3[34] == c3[-38] == c3[10] == c3[2,2,2] == c3[4,5,6] == t3[2,2,2] == t3[10] == 'J'
+
     @test vec(c3[:, [CartesianIndex()], 1, 5]) == vec(t3[:, 1, 1])
 
     @test IndexStyle(c3) == IndexStyle(typeof(c3)) == IndexCartesian()
@@ -154,6 +175,14 @@ end
 
     @test_throws BoundsError c3[2,3] # too few indices
     @test_throws BoundsError c3[CartesianIndex(2,3)]
+
+    @testset "doubly circular" begin
+        c = CircularArray(t3)
+        dc = CircularArray(c)
+
+        @test all(c[i, j, k] == dc[i, j, k] for i in -5:5, j in -5:5, k in -5:5)
+        @test all(c[i] == dc[i] for i in -50:50)
+    end
 end
 
 @testset "offset indices" begin
