@@ -102,6 +102,10 @@ end
 
         @test all(a[i] == b[i] for i in -50:50)
     end
+
+    v3 = @inferred(map(x -> x+1, CircularArray([1, 2, 3, 4])))
+    @test v3 == CircularArray([2, 3, 4, 5])
+    @test similar(v3, Base.OneTo(4)) isa typeof(v3)
 end
 
 @testset "matrix" begin
@@ -195,6 +199,8 @@ end
     @test a[0:9] == [3:5; 1:5; 1:2]
     @test a[1:10][-10] == 3
     @test a[i] == OffsetArray([4,5,1,2,3],-3)
+
+    @test @inferred(similar(a)) isa CircularVector
 
     circ_a = circshift(a,3)
     @test axes(circ_a) == axes(a)

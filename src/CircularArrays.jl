@@ -61,10 +61,12 @@ Base.parent(arr::CircularArray) = arr.data
     nothing
 end
 
-@inline _similar(arr::CircularArray, ::Type{T}, dims) where T = CircularArray(similar(arr.data,T,dims))
-@inline Base.similar(arr::CircularArray, ::Type{T}, dims::Tuple{Base.DimOrInd, Vararg{Base.DimOrInd}}) where T = _similar(arr,T,dims)
+@inline _similar(arr::CircularArray, ::Type{T}, dims) where T = CircularArray(similar(parent(arr), T, dims))
+@inline Base.similar(arr::CircularArray, ::Type{T}, dims::Dims) where T = _similar(arr, T, dims)
+@inline Base.similar(arr::CircularArray, ::Type{T}, dims::Tuple{Base.DimOrInd, Vararg{Base.DimOrInd}}) where T = _similar(arr, T, dims)
 # Ambiguity resolution with Base
-@inline Base.similar(arr::CircularArray, ::Type{T}, dims::Tuple{Int64,Vararg{Int64}}) where T = _similar(arr,T,dims)
+@inline Base.similar(arr::CircularArray, ::Type{T}, dims::Tuple{Int64, Vararg{Int64}}) where T = _similar(arr, T, dims)
+@inline Base.similar(arr::CircularArray, ::Type{T}, dims::Tuple{Union{Integer, Base.OneTo}, Vararg{Union{Integer, Base.OneTo}}}) where T = _similar(arr, T, dims)
 
 function Base.showarg(io::IO, arr::CircularArray, toplevel)
     print(io, ndims(arr) == 1 ? "CircularVector(" : "CircularArray(")
