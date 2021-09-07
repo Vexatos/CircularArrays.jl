@@ -67,6 +67,8 @@ end
 @inline Base.similar(arr::CircularArray, ::Type{T}, dims::Dims) where T = _similar(arr, T, dims)
 @inline Base.similar(arr::CircularArray, ::Type{T}, dims::Tuple{Union{Integer, Base.OneTo}, Vararg{Union{Integer, Base.OneTo}}}) where T = _similar(arr, T, dims)
 
+@inline Base.dataids(arr::CircularArray) = Base.dataids(parent(arr))
+
 function Base.showarg(io::IO, arr::CircularArray, toplevel)
     print(io, ndims(arr) == 1 ? "CircularVector(" : "CircularArray(")
     Base.showarg(io, parent(arr), false)
