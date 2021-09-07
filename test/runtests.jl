@@ -70,6 +70,7 @@ end
     @test v1[-4:10] == [data; data; data]
     @test v1[-3:1][-1] == data[end]
     @test v1[[true,false,true,false,true]] == v1[[1,3,0]]
+    @test all(e in data for e in v1)
 
     v1copy = copy(v1)
     v1_2 = v1[2]
@@ -103,9 +104,16 @@ end
         @test all(a[i] == b[i] for i in -50:50)
     end
 
-    v3 = @inferred(map(x -> x+1, CircularArray([1, 2, 3, 4])))
-    @test v3 == CircularArray([2, 3, 4, 5])
-    @test similar(v3, Base.OneTo(4)) isa typeof(v3)
+    @testset "type consistency" begin
+        v3 = @inferred(map(x -> x+1, CircularArray([1, 2, 3, 4])))
+        @test v3 isa CircularVector{Int64}
+        @test v3 == CircularArray([2, 3, 4, 5])
+        @test similar(v3, Base.OneTo(4)) isa typeof(v3)
+
+        v4 = @inferred(CircularArray([1, 2, 3, 4]) .+ 1)
+        @test v4 isa CircularVector{Int64}
+        @test v4 == CircularArray([2, 3, 4, 5])
+    end
 end
 
 @testset "matrix" begin
@@ -113,6 +121,7 @@ end
     a1 = CircularArray(b_arr)
     @test size(a1) == (3, 4)
     @test parent(a1) == b_arr
+
     @test a1[2, 3] == 14
     @test a1[2, Int32(3)] == 14
     a1[2, 3] = 17
@@ -144,6 +153,10 @@ end
 
     a2 = CircularArray(4, (2, 3))
     @test isa(a2, CircularArray{Int, 2})
+
+    a3 = @inferred(a2 .+ 1)
+    @test a3 isa CircularArray{Int64, 2}
+    @test a3 == CircularArray(5, (2, 3))
 
     @testset "doubly circular" begin
         a = CircularArray(b_arr)

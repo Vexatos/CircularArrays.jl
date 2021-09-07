@@ -12,9 +12,9 @@ export CircularArray, CircularVector
 
     array[index...] == array[mod1.(index, size)...]
 """
-struct CircularArray{T, N, A} <: AbstractArray{T, N}
+struct CircularArray{T, N, A <: AbstractArray{T,N}} <: AbstractArray{T,N}
     data::A
-    CircularArray{T,N}(data::AbstractArray{T,N}) where {T,N} = new{T,N,typeof(data)}(data)
+    CircularArray{T,N}(data::A) where A <: AbstractArray{T,N} where {T,N} = new{T,N,A}(data)
 end
 
 """
@@ -53,7 +53,12 @@ Base.IndexStyle(::Type{<:CircularVector}) = IndexLinear()
 
 @inline Base.size(arr::CircularArray) = size(arr.data)
 @inline Base.axes(arr::CircularArray) = axes(arr.data)
-Base.parent(arr::CircularArray) = arr.data
+@inline Base.parent(arr::CircularArray) = arr.data
+
+@inline Base.iterate(arr::CircularArray, i...) = iterate(parent(arr), i...)
+
+@inline Base.in(x, arr::CircularArray) = in(x, parent(arr))
+@inline Base.copy(arr::CircularArray) = CircularArray(copy(parent(arr)))
 
 @inline function Base.checkbounds(arr::CircularArray, I...)
     J = Base.to_indices(arr, I)
@@ -66,6 +71,11 @@ end
 # Ambiguity resolution with Base
 @inline Base.similar(arr::CircularArray, ::Type{T}, dims::Dims) where T = _similar(arr, T, dims)
 @inline Base.similar(arr::CircularArray, ::Type{T}, dims::Tuple{Union{Integer, Base.OneTo}, Vararg{Union{Integer, Base.OneTo}}}) where T = _similar(arr, T, dims)
+
+@inline Base.similar(::Type{CircularArray{T,N,A}}, axes) where {T,N,A} = CircularArray{T,N}(similar(A, axes))
+
+@inline Broadcast.BroadcastStyle(::Type{CircularArray{T,N,A}}) where {T,N,A} = Broadcast.ArrayStyle{CircularArray{T,N,A}}()
+@inline Base.similar(bc::Broadcast.Broadcasted{Broadcast.ArrayStyle{CircularArray{T,N,A}}}, ::Type{ElType}, dims) where {T,N,A,ElType} = CircularArray(similar(convert(Broadcast.Broadcasted{typeof(Broadcast.BroadcastStyle(A))}, bc), ElType, dims))
 
 @inline Base.dataids(arr::CircularArray) = Base.dataids(parent(arr))
 
