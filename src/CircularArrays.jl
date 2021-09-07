@@ -79,7 +79,7 @@ end
 @inline Base.similar(CA::Type{CircularArray{T,N,A}}, dims::Tuple{Union{Integer, Base.OneTo}, Vararg{Union{Integer, Base.OneTo}}}) where {T,N,A} = _similar(CA, dims)
 
 @inline Broadcast.BroadcastStyle(::Type{CircularArray{T,N,A}}) where {T,N,A} = Broadcast.ArrayStyle{CircularArray{T,N,A}}()
-@inline Base.similar(bc::Broadcast.Broadcasted{Broadcast.ArrayStyle{CircularArray{T,N,A}}}, ::Type{ElType}, dims) where {T,N,A,ElType} = CircularArray(similar(convert(Broadcast.Broadcasted{typeof(Broadcast.BroadcastStyle(A))}, bc), ElType, dims))
+@inline Base.similar(bc::Broadcast.Broadcasted{Broadcast.ArrayStyle{CircularArray{T,N,A}}}, ::Type{ElType}, dims=axes(bc)) where {T,N,A,ElType} = CircularArray(similar(convert(Broadcast.Broadcasted{typeof(Broadcast.BroadcastStyle(A))}, bc), ElType, dims))
 
 @inline Base.dataids(arr::CircularArray) = Base.dataids(parent(arr))
 
