@@ -106,17 +106,22 @@ end
         @test all(a[i] == b[i] for i in -50:50)
     end
 
-    @testset "type consistency" begin
+    @testset "type stability" begin
         v3 = @inferred(map(x -> x+1, CircularArray([1, 2, 3, 4])))
         @test v3 isa CircularVector{Int64}
         @test v3 == CircularArray([2, 3, 4, 5])
         @test similar(v3, Base.OneTo(4)) isa typeof(v3)
         @test similar(typeof(v3), Base.OneTo(4)) isa typeof(v3)
         @test similar(typeof(v3), 4) isa typeof(v3)
+        @test similar(typeof(v3), 4) isa typeof(v3)
 
         v4 = @inferred(CircularArray([1, 2, 3, 4]) .+ 1)
         @test v4 isa CircularVector{Int64}
         @test v4 == CircularArray([2, 3, 4, 5])
+
+        v5 = v4 .> 3
+        @test v5 isa CircularVector{Bool, BitVector}
+        @test v5 == CircularArray([0, 0, 1, 1])
     end
 end
 
@@ -217,7 +222,14 @@ end
     @test a[1:10][-10] == 3
     @test a[i] == OffsetArray([4,5,1,2,3],-3)
 
-    @test @inferred(similar(a)) isa CircularVector
+    @testset "type stability" begin
+        @test @inferred(similar(a)) isa CircularVector
+        #@test @inferred(similar(typeof(a), axes(a))) isa CircularVector
+
+        b = CircularVector([1, 2, 3, 4, 5])
+        @test @inferred(similar(b, 3:5)) isa CircularVector
+        @test @inferred(similar(typeof(b), 3:5)) isa CircularVector
+    end
 
     circ_a = circshift(a,3)
     @test axes(circ_a) == axes(a)
