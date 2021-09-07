@@ -111,6 +111,8 @@ end
         @test v3 isa CircularVector{Int64}
         @test v3 == CircularArray([2, 3, 4, 5])
         @test similar(v3, Base.OneTo(4)) isa typeof(v3)
+        @test similar(typeof(v3), Base.OneTo(4)) isa typeof(v3)
+        @test similar(typeof(v3), 4) isa typeof(v3)
 
         v4 = @inferred(CircularArray([1, 2, 3, 4]) .+ 1)
         @test v4 isa CircularVector{Int64}

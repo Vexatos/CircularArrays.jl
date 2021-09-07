@@ -75,11 +75,11 @@ end
 @inline _similar(::Type{CircularArray{T,N,A}}, dims) where {T,N,A} = CircularArray{T,N}(similar(A, dims))
 @inline Base.similar(CA::Type{CircularArray{T,N,A}}, dims::Tuple{Base.DimOrInd, Vararg{Base.DimOrInd}}) where {T,N,A} = _similar(CA, dims)
 # Ambiguity resolution with Base
-@inline Base.similar(CA::Type{CircularArray{T,N,A}}, dims::Dims) where {T,N,A} = _similar(CA, T, dims)
+@inline Base.similar(CA::Type{CircularArray{T,N,A}}, dims::Dims) where {T,N,A} = _similar(CA, dims)
 @inline Base.similar(CA::Type{CircularArray{T,N,A}}, dims::Tuple{Union{Integer, Base.OneTo}, Vararg{Union{Integer, Base.OneTo}}}) where {T,N,A} = _similar(CA, dims)
 
 @inline Broadcast.BroadcastStyle(::Type{CircularArray{T,N,A}}) where {T,N,A} = Broadcast.ArrayStyle{CircularArray{T,N,A}}()
-@inline Base.similar(bc::Broadcast.Broadcasted{Broadcast.ArrayStyle{CircularArray{T,N,A}}}, ::Type{ElType}, dims=axes(bc)) where {T,N,A,ElType} = CircularArray(similar(convert(Broadcast.Broadcasted{typeof(Broadcast.BroadcastStyle(A))}, bc), ElType, dims))
+@inline Base.similar(bc::Broadcast.Broadcasted{Broadcast.ArrayStyle{CircularArray{T,N,A}}}, ::Type{ElType}) where {T,N,A,ElType} = CircularArray(similar(convert(Broadcast.Broadcasted{typeof(Broadcast.BroadcastStyle(A))}, bc), ElType))
 
 @inline Base.dataids(arr::CircularArray) = Base.dataids(parent(arr))
 
