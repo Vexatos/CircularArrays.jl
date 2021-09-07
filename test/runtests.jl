@@ -26,6 +26,7 @@ end
         @test @inferred(a[[1]']) isa CircularArray{Int64,2}
         @test @inferred(axes(a)) isa Tuple{Vararg{AbstractUnitRange}}
         @test @inferred(similar(a)) isa typeof(a)
+        @test @inferred(similar(typeof(a), axes(a))) isa typeof(a)
         @test @inferred(a[a]) isa typeof(a)
     end
 end
@@ -71,6 +72,7 @@ end
     @test v1[-3:1][-1] == data[end]
     @test v1[[true,false,true,false,true]] == v1[[1,3,0]]
     @test all(e in data for e in v1)
+    @test all(e in v1 for e in data)
 
     v1copy = copy(v1)
     v1_2 = v1[2]
