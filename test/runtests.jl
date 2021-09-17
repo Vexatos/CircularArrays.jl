@@ -224,7 +224,7 @@ end
 
     @testset "type stability" begin
         @test @inferred(similar(a)) isa CircularVector
-        #@test @inferred(similar(typeof(a), axes(a))) isa CircularVector
+        @test @inferred(similar(typeof(a), axes(a))) isa CircularVector
 
         b = CircularVector([1, 2, 3, 4, 5])
         @test @inferred(similar(b, 3:5)) isa CircularVector
