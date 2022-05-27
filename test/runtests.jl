@@ -15,6 +15,15 @@ end
         @test all(a == first(arrays) for a in arrays)
         @test all(a isa CircularVector{T,Vector{T}} for a in arrays)
     end
+
+    @testset "matrix construction" begin
+        data = zeros(Float64, 2, 2)
+        ref = CircularArray(data)
+        @test CircularArray{Float64}(data) == ref
+        @test CircularArray{Float64, 2}(data) == ref
+        @test CircularArray{Float64, 2, Array{Float64, 2}}(data) == ref
+        @test CircularArray{Float64, 2, Matrix{Float64}}(data) == ref
+    end
 end
 
 @testset "type stability" begin

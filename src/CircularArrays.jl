@@ -15,6 +15,7 @@ export CircularArray, CircularVector
 struct CircularArray{T, N, A <: AbstractArray{T,N}} <: AbstractArray{T,N}
     data::A
     CircularArray{T,N}(data::A) where A <: AbstractArray{T,N} where {T,N} = new{T,N,A}(data)
+    CircularArray{T,N,A}(data::A) where A <: AbstractArray{T,N} where {T,N} = new{T,N,A}(data)
 end
 
 """
