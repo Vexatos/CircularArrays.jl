@@ -47,10 +47,10 @@ Base.IndexStyle(::Type{CircularArray{T,N,A}}) where {T,N,A} = IndexCartesian()
 Base.IndexStyle(::Type{<:CircularVector}) = IndexLinear()
 
 @inline Base.getindex(arr::CircularArray, i::Int) = @inbounds getindex(arr.data, mod(i, eachindex(IndexLinear(), arr.data)))
-@inline Base.getindex(arr::CircularArray{T,N,A}, I::Vararg{<:Int,N}) where {T,N,A} = @inbounds getindex(arr.data, mod.(I, axes(arr.data))...)
+@inline Base.getindex(arr::CircularArray{T,N,A}, I::Vararg{Int,N}) where {T,N,A} = @inbounds getindex(arr.data, mod.(I, axes(arr.data))...)
 
 @inline Base.setindex!(arr::CircularArray, v, i::Int) = @inbounds setindex!(arr.data, v, mod(i, eachindex(IndexLinear(), arr.data)))
-@inline Base.setindex!(arr::CircularArray{T,N,A}, v, I::Vararg{<:Int,N}) where {T,N,A} = @inbounds setindex!(arr.data, v, mod.(I, axes(arr.data))...)
+@inline Base.setindex!(arr::CircularArray{T,N,A}, v, I::Vararg{Int,N}) where {T,N,A} = @inbounds setindex!(arr.data, v, mod.(I, axes(arr.data))...)
 
 @inline Base.size(arr::CircularArray) = size(arr.data)
 @inline Base.axes(arr::CircularArray) = axes(arr.data)
