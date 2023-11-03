@@ -115,4 +115,9 @@ function Base.deleteat!(a::CircularVector, inds)
     a
 end
 
+function Base.insert!(a::CircularVector, i::Integer, item)
+    insert!(a.data, mod(i, eachindex(IndexLinear(), a.data)), item)
+    a
+end
+
 end

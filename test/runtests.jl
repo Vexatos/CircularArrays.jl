@@ -99,13 +99,23 @@ end
     @test_throws MethodError push!(v1, 15)
 
     @testset "deleteat!" begin
+        @test deleteat!(CircularVector([1, 2, 3]), 2) == CircularVector([1, 3])
         @test deleteat!(CircularVector([1, 2, 3]), 5) == CircularVector([1, 3])
+        @test deleteat!(CircularVector([1, 2, 3]), 4) == CircularVector([2, 3])
+        @test deleteat!(CircularVector([1, 2, 3]), 0) == CircularVector([1, 2])
         @test deleteat!(CircularVector([1, 2, 3, 4]), 1:5:10) == CircularVector([3, 4])
         @test deleteat!(CircularVector([1, 2, 3, 4]), [1, 5]) == CircularVector([2, 3, 4])
         @test deleteat!(CircularVector([1, 2, 3, 4]), (1, 5)) == CircularVector([2, 3, 4])
         @test deleteat!(CircularVector([1, 2, 3, 4]), (1, 6)) == CircularVector([3, 4])
         @test deleteat!(CircularVector([1, 2, 3, 4]), (1, 3, 5)) == CircularVector([2, 4])
         @test deleteat!(CircularVector([1, 2, 3, 4]), (1, 5, 7)) == CircularVector([2, 4])
+    end
+
+    @testset "insert!" begin
+        @test insert!(CircularVector([1, 2, 3]), 2, 4) == CircularVector([1, 4, 2, 3])
+        @test insert!(CircularVector([1, 2, 3]), 5, 4) == CircularVector([1, 4, 2, 3])
+        @test insert!(CircularVector([1, 2, 3]), 4, 4) == CircularVector([4, 1, 2, 3])
+        @test insert!(CircularVector([1, 2, 3]), 0, 4) == CircularVector([1, 2, 4, 3])
     end
 
     @testset "doubly circular" begin
