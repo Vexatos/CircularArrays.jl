@@ -29,6 +29,16 @@ Alias for [`CircularArray{T,1,A}`](@ref).
 const CircularVector{T} = CircularArray{T, 1}
 
 """
+    CircularMatrix{T,A} <: AbstractVector{T}
+
+Two-dimensional array backed by an `AbstractArray{T, 2}` of type `A` with fixed size and circular indexing.
+Alias for [`CircularArray{T,2,A}`](@ref).
+
+    array[index] == array[mod1(index, length)]
+"""
+const CircularMatrix{T} = CircularArray{T, 2}
+
+"""
     CircularArray(data)
 
 Create a `CircularArray` wrapping the array `data`.
