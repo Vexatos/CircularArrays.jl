@@ -98,6 +98,10 @@ end
 
     @test_throws MethodError push!(v1, 15)
 
+    @test empty(v1) isa CircularVector{Int64}
+    @test empty(v1, Float64) isa CircularVector{Float64}
+    @test isempty(empty(v1))
+
     @testset "deleteat!" begin
         @test deleteat!(CircularVector([1, 2, 3]), 2) == CircularVector([1, 3])
         @test deleteat!(CircularVector([1, 2, 3]), 5) == CircularVector([1, 3])
