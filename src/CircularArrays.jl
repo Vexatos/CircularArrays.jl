@@ -105,6 +105,8 @@ Create a `CircularVector` of size `size` filled with value `def`.
 """
 CircularVector(def::T, size::Int) where T = CircularVector{T}(fill(def, size))
 
+Base.empty(::CircularVector{T}, ::Type{U}=T) where {T,U} = CircularVector{U}(U[])
+
 function Base.deleteat!(a::CircularVector, i::Integer)
     deleteat!(a.data, mod(i, eachindex(IndexLinear(), a.data)))
     a
