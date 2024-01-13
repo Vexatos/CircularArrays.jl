@@ -3,7 +3,7 @@ Arrays with fixed size and circular indexing.
 """
 module CircularArrays
 
-export CircularArray, CircularVector
+export CircularArray, CircularVector, CircularMatrix
 
 """
     CircularArray{T, N, A} <: AbstractArray{T, N}
