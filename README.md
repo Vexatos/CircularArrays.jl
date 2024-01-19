@@ -18,6 +18,9 @@ CircularArray(initialValue::T, dims...) where T
 # Alternative functions for one-dimensional circular arrays.
 CircularVector(arr::AbstractArray{T, 1}) where T
 CircularVector(initialValue::T, size::Int) where T
+# Alternative functions for two-dimensional circular arrays.
+CircularMatrix(mat::AbstractArray{T, 2}) where T
+CircularMatrix(initialValue::T, size::NTuple{2, Integer}) where T
 ```
 
 ### Examples
@@ -26,7 +29,7 @@ CircularVector(initialValue::T, size::Int) where T
 julia> using CircularArrays
 julia> a = CircularArray([1,2,3]);
 julia> a[0:4]
-5-element CircularArray{Int64,1}:
+5-element CircularVector(::Vector{Int64}):
  3
  1
  2
@@ -35,7 +38,7 @@ julia> a[0:4]
 julia> using OffsetArrays
 julia> i = OffsetArray(1:5,-2:2);
 julia> a[i]
-5-element CircularArray{Int64,1} with indices -2:2:
+5-element CircularVector(OffsetArray(::Vector{Int64}, -2:2)) with indices -2:2:
  1
  2
  3
