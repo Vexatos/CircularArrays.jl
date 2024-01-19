@@ -150,7 +150,7 @@ end
 
 @testset "matrix" begin
     b_arr = [2 4 6 8; 10 12 14 16; 18 20 22 24]
-    a1 = CircularArray(b_arr)
+    a1 = CircularMatrix(b_arr)
     @test size(a1) == (3, 4)
     @test parent(a1) == b_arr
 
@@ -179,21 +179,25 @@ end
 
     @test !isa(a1, CircularVector)
     @test !isa(a1, AbstractVector)
+    @test isa(a1, AbstractMatrix)
     @test isa(a1, AbstractArray)
 
     @test size(reshape(a1, (2, 2, 3))) == (2, 2, 3)
 
-    a2 = CircularArray(4, (2, 3))
+    a2 = CircularMatrix(4, (2, 3))
+    @test isa(a2, CircularMatrix{Int})
     @test isa(a2, CircularArray{Int, 2})
 
     a3 = @inferred(a2 .+ 1)
+    @test a3 isa CircularMatrix{Int64}
     @test a3 isa CircularArray{Int64, 2}
     @test a3 == CircularArray(5, (2, 3))
 
     @testset "doubly circular" begin
-        a = CircularArray(b_arr)
-        da = CircularArray(a)
+        a = CircularMatrix(b_arr)
+        da = CircularMatrix(a)
 
+        @test da isa CircularMatrix
         @test all(a[i, j] == da[i, j] for i in -8:8, j in -8:8)
         @test all(a[i] == da[i] for i in -50:50)
     end
