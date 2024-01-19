@@ -107,11 +107,26 @@ Create a `CircularVector` wrapping the array `data`.
 CircularVector(data::AbstractArray{T, 1}) where T = CircularVector{T}(data)
 
 """
+    CircularMatrix(data)
+
+Create a `CircularMatrix` wrapping the array `data`.
+"""
+CircularMatrix(data::AbstractArray{T, 2}) where T = CircularMatrix{T}(data)
+
+
+"""
     CircularVector(def, size)
 
 Create a `CircularVector` of size `size` filled with value `def`.
 """
 CircularVector(def::T, size::Int) where T = CircularVector{T}(fill(def, size))
+
+"""
+    CircularMatrix(def, size)
+
+Create a `CircularMatrix` of size `size` filled with value `def`.
+"""
+CircularMatrix(def::T, size::NTuple{2, Integer}) where T = CircularMatrix{T}(fill(def, size))
 
 Base.empty(::CircularVector{T}, ::Type{U}=T) where {T,U} = CircularVector{U}(U[])
 
