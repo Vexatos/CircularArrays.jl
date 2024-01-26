@@ -129,6 +129,10 @@ Create a `CircularMatrix` of size `size` filled with value `def`.
 CircularMatrix(def::T, size::NTuple{2, Integer}) where T = CircularMatrix{T}(fill(def, size))
 
 Base.empty(::CircularVector{T}, ::Type{U}=T) where {T,U} = CircularVector{U}(U[])
+Base.empty!(a::CircularVector) = (empty!(parent(a)); a)
+# push!, append! can be used by `resize!` method.
+Base.resize!(A::CircularVector, nl::Integer) = (resize!(parent(A), nl); A)
+Base.pop!(a::CircularVector) = pop!(parent(a))
 
 function Base.deleteat!(a::CircularVector, i::Integer)
     deleteat!(a.data, mod(i, eachindex(IndexLinear(), a.data)))
