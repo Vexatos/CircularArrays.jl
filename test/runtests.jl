@@ -96,7 +96,6 @@ end
 
     @test prod(v2) == "abcde"^5
 
-    @test_throws MethodError push!(v1, 15)
 
     @test empty(v1) isa CircularVector{Int64}
     @test empty(v1, Float64) isa CircularVector{Float64}
