@@ -133,6 +133,7 @@ Base.empty!(a::CircularVector) = (empty!(parent(a)); a)
 # push!, append! can be used by `resize!` method.
 Base.resize!(A::CircularVector, nl::Integer) = (resize!(parent(A), nl); A)
 Base.pop!(a::CircularVector) = pop!(parent(a))
+Base.sizehint!(a::CircularVector, sz::Integer) = (sizehint!(parent(a), sz); a)
 
 function Base.deleteat!(a::CircularVector, i::Integer)
     deleteat!(a.data, mod(i, eachindex(IndexLinear(), a.data)))
