@@ -3,7 +3,52 @@ Arrays with fixed size and circular indexing.
 """
 module CircularArrays
 
+export AbstractCircularArray, AbstractCircularVector, AbstractCircularMatrix
 export CircularArray, CircularVector, CircularMatrix
+
+abstract type AbstractCircularArray{T,N} <: AbstractArray{T,N} end
+
+const AbstractCircularVector{T} = AbstractCircularArray{T,1}
+const AbstractCircularMatrix{T} = AbstractCircularArray{T,2}
+
+Base.IndexStyle(::Type{<:AbstractCircularArray}) = IndexCartesian()
+Base.IndexStyle(::Type{<:AbstractCircularVector}) = IndexLinear()
+
+@inline Base.getindex(arr::AbstractCircularArray, i::Int) = @inbounds getindex(parent(arr), mod(i, eachindex(IndexLinear(), parent(arr))))
+@inline Base.getindex(arr::AbstractCircularArray{T,N}, I::Vararg{Int,N}) where {T,N} = @inbounds getindex(parent(arr), mod.(I, axes(parent(arr)))...)
+
+@inline Base.setindex!(arr::AbstractCircularArray, v, i::Int) = @inbounds setindex!(parent(arr), v, mod(i, eachindex(IndexLinear(), parent(arr))))
+@inline Base.setindex!(arr::AbstractCircularArray{T,N}, v, I::Vararg{Int,N}) where {T,N} = @inbounds setindex!(parent(arr), v, mod.(I, axes(parent(arr)))...)
+
+@inline Base.size(arr::AbstractCircularArray) = size(parent(arr))
+@inline Base.axes(arr::AbstractCircularArray) = axes(parent(arr))
+
+@inline Base.iterate(arr::AbstractCircularArray, i...) = iterate(parent(arr), i...)
+
+@inline Base.in(x, arr::AbstractCircularArray) = in(x, parent(arr))
+
+@inline function Base.checkbounds(arr::AbstractCircularArray, I...)
+    J = Base.to_indices(arr, I)
+    length(J) == 1 || length(J) >= ndims(arr) || throw(BoundsError(arr, I))
+    nothing
+end
+
+@inline Base.dataids(arr::AbstractCircularArray) = Base.dataids(parent(arr))
+
+function Base.deleteat!(a::AbstractCircularVector, i::Integer)
+    deleteat!(parent(a), mod(i, eachindex(IndexLinear(), parent(a))))
+    a
+end
+
+function Base.deleteat!(a::AbstractCircularVector, inds)
+    deleteat!(parent(a), sort!(unique(map(i -> mod(i, eachindex(IndexLinear(), parent(a))), inds))))
+    a
+end
+
+function Base.insert!(a::AbstractCircularVector, i::Integer, item)
+    insert!(parent(a), mod(i, eachindex(IndexLinear(), parent(a))), item)
+    a
+end
 
 """
     CircularArray{T, N, A} <: AbstractArray{T, N}
@@ -12,7 +57,7 @@ export CircularArray, CircularVector, CircularMatrix
 
     array[index...] == array[mod1.(index, size)...]
 """
-struct CircularArray{T, N, A <: AbstractArray{T,N}} <: AbstractArray{T,N}
+struct CircularArray{T,N,A} <: AbstractCircularArray{T,N}
     data::A
     CircularArray{T,N}(data::A) where A <: AbstractArray{T,N} where {T,N} = new{T,N,A}(data)
     CircularArray{T,N,A}(data::A) where A <: AbstractArray{T,N} where {T,N} = new{T,N,A}(data)
@@ -51,29 +96,8 @@ Create a `CircularArray` of size `size` filled with value `def`.
 """
 CircularArray(def::T, size) where T = CircularArray(fill(def, size))
 
-Base.IndexStyle(::Type{CircularArray{T,N,A}}) where {T,N,A} = IndexCartesian()
-Base.IndexStyle(::Type{<:CircularVector}) = IndexLinear()
-
-@inline Base.getindex(arr::CircularArray, i::Int) = @inbounds getindex(arr.data, mod(i, eachindex(IndexLinear(), arr.data)))
-@inline Base.getindex(arr::CircularArray{T,N,A}, I::Vararg{Int,N}) where {T,N,A} = @inbounds getindex(arr.data, mod.(I, axes(arr.data))...)
-
-@inline Base.setindex!(arr::CircularArray, v, i::Int) = @inbounds setindex!(arr.data, v, mod(i, eachindex(IndexLinear(), arr.data)))
-@inline Base.setindex!(arr::CircularArray{T,N,A}, v, I::Vararg{Int,N}) where {T,N,A} = @inbounds setindex!(arr.data, v, mod.(I, axes(arr.data))...)
-
-@inline Base.size(arr::CircularArray) = size(arr.data)
-@inline Base.axes(arr::CircularArray) = axes(arr.data)
 @inline Base.parent(arr::CircularArray) = arr.data
-
-@inline Base.iterate(arr::CircularArray, i...) = iterate(parent(arr), i...)
-
-@inline Base.in(x, arr::CircularArray) = in(x, parent(arr))
 @inline Base.copy(arr::CircularArray) = CircularArray(copy(parent(arr)))
-
-@inline function Base.checkbounds(arr::CircularArray, I...)
-    J = Base.to_indices(arr, I)
-    length(J) == 1 || length(J) >= ndims(arr) || throw(BoundsError(arr, I))
-    nothing
-end
 
 @inline _similar(arr::CircularArray, ::Type{T}, dims) where T = CircularArray(similar(parent(arr), T, dims))
 @inline Base.similar(arr::CircularArray, ::Type{T}, dims::Tuple{Base.DimOrInd, Vararg{Base.DimOrInd}}) where T = _similar(arr, T, dims)
@@ -89,8 +113,6 @@ end
 
 @inline Broadcast.BroadcastStyle(::Type{CircularArray{T,N,A}}) where {T,N,A} = Broadcast.ArrayStyle{CircularArray{T,N,A}}()
 @inline Base.similar(bc::Broadcast.Broadcasted{Broadcast.ArrayStyle{CircularArray{T,N,A}}}, ::Type{ElType}) where {T,N,A,ElType} = CircularArray(similar(convert(Broadcast.Broadcasted{typeof(Broadcast.BroadcastStyle(A))}, bc), ElType))
-
-@inline Base.dataids(arr::CircularArray) = Base.dataids(parent(arr))
 
 function Base.showarg(io::IO, arr::CircularArray, toplevel)
     print(io, ndims(arr) == 1 ? "CircularVector(" : "CircularArray(")
@@ -129,20 +151,5 @@ Create a `CircularMatrix` of size `size` filled with value `def`.
 CircularMatrix(def::T, size::NTuple{2, Integer}) where T = CircularMatrix{T}(fill(def, size))
 
 Base.empty(::CircularVector{T}, ::Type{U}=T) where {T,U} = CircularVector{U}(U[])
-
-function Base.deleteat!(a::CircularVector, i::Integer)
-    deleteat!(a.data, mod(i, eachindex(IndexLinear(), a.data)))
-    a
-end
-
-function Base.deleteat!(a::CircularVector, inds)
-    deleteat!(a.data, sort!(unique(map(i -> mod(i, eachindex(IndexLinear(), a.data)), inds))))
-    a
-end
-
-function Base.insert!(a::CircularVector, i::Integer, item)
-    insert!(a.data, mod(i, eachindex(IndexLinear(), a.data)), item)
-    a
-end
 
 end
