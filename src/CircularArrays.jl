@@ -11,6 +11,8 @@ abstract type AbstractCircularArray{T,N} <: AbstractArray{T,N} end
 const AbstractCircularVector{T} = AbstractCircularArray{T,1}
 const AbstractCircularMatrix{T} = AbstractCircularArray{T,2}
 
+Base.parent(arg::AbstractCircularArray) = arg.data
+
 Base.IndexStyle(::Type{<:AbstractCircularArray}) = IndexCartesian()
 Base.IndexStyle(::Type{<:AbstractCircularVector}) = IndexLinear()
 
