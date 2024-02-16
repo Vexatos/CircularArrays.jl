@@ -35,6 +35,7 @@ end
         @test @inferred(a[[1]']) isa CircularArray{Int64,2}
         @test @inferred(axes(a)) isa Tuple{Vararg{AbstractUnitRange}}
         @test @inferred(similar(a)) isa typeof(a)
+        @test @inferred(similar(a, Float64, Int8.(size(a)))) isa CircularArray{Float64}
         @test @inferred(similar(typeof(a), axes(a))) isa typeof(a)
         @test @inferred(a[a]) isa typeof(a)
     end
