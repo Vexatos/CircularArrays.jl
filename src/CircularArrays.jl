@@ -79,6 +79,7 @@ end
 @inline Base.similar(arr::CircularArray, ::Type{T}, dims::Tuple{Base.DimOrInd, Vararg{Base.DimOrInd}}) where T = _similar(arr, T, dims)
 # Ambiguity resolution with Base
 @inline Base.similar(arr::CircularArray, ::Type{T}, dims::Dims) where T = _similar(arr, T, dims)
+@inline Base.similar(arr::CircularArray, ::Type{T}, dims::Tuple{Integer, Vararg{Integer}}) where T = _similar(arr, T, dims)
 @inline Base.similar(arr::CircularArray, ::Type{T}, dims::Tuple{Union{Integer, Base.OneTo}, Vararg{Union{Integer, Base.OneTo}}}) where T = _similar(arr, T, dims)
 
 @inline _similar(::Type{CircularArray{T,N,A}}, dims) where {T,N,A} = CircularArray{T,N}(similar(A, dims))
