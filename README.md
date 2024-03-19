@@ -18,6 +18,8 @@ CircularArray(initialValue::T, dims...) where T
 # Alternative functions for one-dimensional circular arrays.
 CircularVector(arr::AbstractArray{T, 1}) where T
 CircularVector(initialValue::T, size::Int) where T
+# Uninitialized circular arrays
+CircularArray{T}(undef, dims...) where T
 ```
 
 ### Examples
