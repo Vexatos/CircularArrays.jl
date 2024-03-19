@@ -145,4 +145,64 @@ function Base.insert!(a::CircularVector, i::Integer, item)
     a
 end
 
+# type and dimensionality specified, accepting dims as series of Ints
+CircularArray{T,1}(::UndefInitializer, m::Int) where {T} =
+    CircularArray(Array{T,1}(undef, m))
+CircularArray{T,2}(::UndefInitializer, m::Int, n::Int) where {T} =
+    CircularArray(Array{T,2}(undef, m, n))
+CircularArray{T,3}(::UndefInitializer, m::Int, n::Int, o::Int) where {T} =
+    CircularArray(Array{T,3}(undef, m, n, o))
+CircularArray{T,N}(::UndefInitializer, d::Vararg{Int,N}) where {T,N} =
+    CircularArray(Array{T,N}(undef, d))
+
+# type and dimensionality specified, accepting dims as tuples of Ints
+CircularArray{T,1}(::UndefInitializer, d::NTuple{1,Int}) where {T} =
+    CircularArray(Array{T,1}(undef, getfield(d,1)))
+CircularArray{T,2}(::UndefInitializer, d::NTuple{2,Int}) where {T} =
+    CircularArray(Array{T,2}(undef, getfield(d,1), getfield(d,2)))
+CircularArray{T,3}(::UndefInitializer, d::NTuple{3,Int}) where {T} =
+    CircularArray(Array{T,3}(undef, getfield(d,1), getfield(d,2), getfield(d,3)))
+CircularArray{T,N}(::UndefInitializer, d::NTuple{N,Int}) where {T,N} =
+    CircularArray(Array{T,N}(undef, d))
+
+# type but not dimensionality specified
+CircularArray{T}(::UndefInitializer, m::Int) where {T} =
+    CircularArray(Array{T,1}(undef, m))
+CircularArray{T}(::UndefInitializer, m::Int, n::Int) where {T} =
+    CircularArray(Array{T,2}(undef, m, n))
+CircularArray{T}(::UndefInitializer, m::Int, n::Int, o::Int) where {T} =
+    CircularArray(Array{T,3}(undef, m, n, o))
+CircularArray{T}(::UndefInitializer, d::NTuple{N,Int}) where {T,N} =
+    CircularArray(Array{T,N}(undef, d))
+
+# type and dimensionality specified, accepting dims as series of Integers
+CircularVector{T}(::UndefInitializer, m::Integer) where {T} =
+    CircularArray(Vector{T}(undef, Int(m)))
+CircularMatrix{T}(::UndefInitializer, m::Integer, n::Integer) where {T} =
+    CircularArray(Matrix{T}(undef, Int(m), Int(n)))
+CircularArray{T,N}(::UndefInitializer, d::Vararg{Integer,N}) where {T,N} =
+    CircularArray(Array{T,N}(undef, convert(Tuple{Vararg{Int}}, d)))
+
+# type but not dimensionality specified, accepting dims as series of Integers
+CircularArray{T}(::UndefInitializer, m::Integer) where {T} =
+    CircularArray(Array{T,1}(undef, Int(m)))
+CircularArray{T}(::UndefInitializer, m::Integer, n::Integer) where {T} =
+    CircularArray(Array{T,2}(undef, Int(m), Int(n)))
+CircularArray{T}(::UndefInitializer, m::Integer, n::Integer, o::Integer) where {T} =
+    CircularArray(Array{T,3}(undef, Int(m), Int(n), Int(o)))
+CircularArray{T}(::UndefInitializer, d::Integer...) where {T} =
+    CircularArray(Array{T}(undef, convert(Tuple{Vararg{Int}}, d)))
+
+# dimensionality but not type specified, accepting dims as series of Integers
+CircularVector(::UndefInitializer, m::Integer) =
+    CircularArray(Vector{Any}(undef, Int(m)))
+CircularMatrix(::UndefInitializer, m::Integer, n::Integer) =
+    CircularArray(Matrix{Any}(undef, Int(m), Int(n)))
+
+# Dimensions as a single tuple
+CircularArray{T}(::UndefInitializer, d::NTuple{N,Integer}) where {T,N} =
+    CircularArray(Array{T,N}(undef, convert(Tuple{Vararg{Int}}, d)))
+CircularArray{T,N}(::UndefInitializer, d::NTuple{N,Integer}) where {T,N} =
+    CircularArray(Array{T,N}(undef, convert(Tuple{Vararg{Int}}, d)))
+
 end

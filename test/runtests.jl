@@ -273,3 +273,20 @@ end
     @test a[CartesianIndex.(i,i)] == CircularArray(OffsetArray([5,9,1,5,9],-2:2))
     @test a[a .> 4] == 5:9
 end
+
+@testset "undefined" begin
+    for d in ((2,), (2,3), (2,3,4), (2,3,4,5))
+        v = CircularArray{Float32}(undef, d)
+        @test typeof(v) == CircularArray{Float32, length(d), Array{Float32, length(d)}}
+        @test size(v) == d
+        v = CircularArray{Float32}(undef, d...)
+        @test typeof(v) == CircularArray{Float32, length(d), Array{Float32, length(d)}}
+        @test size(v) == d
+        v = CircularArray{Float32,length(d)}(undef, d)
+        @test typeof(v) == CircularArray{Float32, length(d), Array{Float32, length(d)}}
+        @test size(v) == d
+        v = CircularArray{Float32,length(d)}(undef, d...)
+        @test typeof(v) == CircularArray{Float32, length(d), Array{Float32, length(d)}}
+        @test size(v) == d
+    end
+end
