@@ -4,7 +4,7 @@ license = "MIT"
 desc = "Arrays with fixed size and circular indexing."
 authors = ["Vexatos <Stuarzt@gmx.de>"]
 url = "https://github.com/Vexatos/CircularArrays.jl"
-version = "1.3.3"
+version = "1.4.0"
 
 [deps]
 # The OffsetArrays dependency is not used.
