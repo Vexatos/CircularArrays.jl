@@ -130,7 +130,8 @@ CircularMatrix(def::T, size::NTuple{2, Integer}) where T = CircularMatrix{T}(fil
 
 Base.empty(::CircularVector{T}, ::Type{U}=T) where {T,U} = CircularVector{U}(U[])
 Base.empty!(a::CircularVector) = (empty!(parent(a)); a)
-# push!, append! can be used by `resize!` method.
+Base.push!(a::CircularVector, x...) = (push!(parent(a), x...); a)
+Base.append!(a::CircularVector, items) = (append!(parent(a), items); a)
 Base.resize!(a::CircularVector, nl::Integer) = (resize!(parent(a), nl); a)
 Base.pop!(a::CircularVector) = pop!(parent(a))
 Base.sizehint!(a::CircularVector, sz::Integer) = (sizehint!(parent(a), sz); a)

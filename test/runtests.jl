@@ -162,10 +162,10 @@ end
     end
 
     @testset "sizehint!" begin
-        A = CircularVector([1,2,3,4,5,6,7])
-        resize!(A, 1)
-        sizehint!(A, 1)
-        @test length(A) == 1
+        v = CircularVector([1,2,3,4,5,6,7])
+        resize!(v, 1)
+        sizehint!(v, 1)
+        @test length(v) == 1
     end
 
     @testset "deleteat!" begin
