@@ -339,4 +339,61 @@ end
     @test a[i,1] == CircularArray(OffsetArray([5,6,4,5,6],-2:2))
     @test a[CartesianIndex.(i,i)] == CircularArray(OffsetArray([5,9,1,5,9],-2:2))
     @test a[a .> 4] == 5:9
+@testset "abstract" begin
+    struct CustomCircularArray{T, N, A <: AbstractArray{T, N}} <: AbstractCircularArray{T, N}
+        data::A
+    end
+
+    @testset "vector" begin
+
+        v = Vector{Int}([3, 6, 9, 12, 15])
+        vc = CustomCircularArray(v)
+
+        @test vc isa CustomCircularArray
+        @test vc isa CustomCircularArray{Int}
+        @test vc isa CustomCircularArray{Int, 1}
+        @test vc isa CustomCircularArray{Int, 1, Vector{Int}}
+
+        @test vc isa AbstractCircularArray
+        @test vc isa AbstractCircularVector
+        @test vc isa AbstractCircularVector{Int}
+        @test vc isa AbstractCircularArray{Int}
+        @test vc isa AbstractCircularArray{Int, 1}
+
+        @test vc isa AbstractArray
+        @test vc isa AbstractVector
+        @test vc isa AbstractVector{Int}
+        @test vc isa AbstractArray{Int}
+        @test vc isa AbstractArray{Int, 1}
+
+        @test parent(vc) == v
+
+    end
+
+    @testset "matrix" begin
+
+        m = Matrix{Int}([11 12 13; 21 22 23; 31 32 33])
+        mc = CustomCircularArray(m)
+
+        @test mc isa CustomCircularArray
+        @test mc isa CustomCircularArray{Int}
+        @test mc isa CustomCircularArray{Int, 2}
+        @test mc isa CustomCircularArray{Int, 2, Matrix{Int}}
+
+        @test mc isa AbstractCircularArray
+        @test mc isa AbstractCircularMatrix
+        @test mc isa AbstractCircularMatrix{Int}
+        @test mc isa AbstractCircularArray{Int}
+        @test mc isa AbstractCircularArray{Int, 2}
+
+        @test mc isa AbstractArray
+        @test mc isa AbstractMatrix
+        @test mc isa AbstractMatrix{Int}
+        @test mc isa AbstractArray{Int}
+        @test mc isa AbstractArray{Int, 2}
+
+        @test parent(mc) == m
+
+    end
+
 end
