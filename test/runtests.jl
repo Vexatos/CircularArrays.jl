@@ -18,11 +18,11 @@ end
 
     @testset "matrix construction" begin
         data = zeros(Float64, 2, 2)
-        ref = CircularArray(data)
-        @test CircularArray{Float64}(data) == ref
+        ref = CircularMatrix(data)
         @test CircularArray{Float64, 2}(data) == ref
-        @test CircularArray{Float64, 2, Array{Float64, 2}}(data) == ref
-        @test CircularArray{Float64, 2, Matrix{Float64}}(data) == ref
+        @test CircularMatrix{Float64}(data) == ref
+        @test CircularMatrix{Float64, Array{Float64, 2}}(data) == ref
+        @test CircularMatrix{Float64, Matrix{Float64}}(data) == ref
     end
 end
 
@@ -97,11 +97,77 @@ end
 
     @test prod(v2) == "abcde"^5
 
-    @test_throws MethodError push!(v1, 15)
+    @testset "empty/empty!" begin
+        v1 = CircularVector([1,2,3])
+        @test empty(v1) isa CircularVector{Int64}
+        @test empty(v1, Float64) isa CircularVector{Float64}
+        v1 == CircularVector([])
+        # `isempty` can be used to implement `size` method.
+        @test isempty(empty(v1))
 
-    @test empty(v1) isa CircularVector{Int64}
-    @test empty(v1, Float64) isa CircularVector{Float64}
-    @test isempty(empty(v1))
+        v2 = CircularVector("abcde", 5)
+        @test empty!(v2) isa CircularVector{String}
+        @test isempty(v2)
+    end
+
+    @testset "resize!" begin
+        @test_throws ArgumentError("new length must be ≥ 0") resize!(CircularVector([]), -2)
+        v = CircularVector([1,2,3,4,5,6,7])
+        resize!(v, 3)
+        @test length(v) == 3
+
+        # ensure defining `resize!` induces `push!` and `append!` methods
+        @testset "push!" begin
+            v = CircularVector([1,2,3])
+            push!(v, 42)
+            @test v == CircularVector([1,2,3,42])
+            push!(v, -9, -99, -999)
+            @test v == CircularVector([1,2,3,42, -9, -99, -999])
+        end
+
+        @testset "append!" begin
+            v1 = CircularVector([1,2,3])
+            append!(v1, [-9, -99, -999])
+            @test v1 == CircularVector([1,2,3, -9, -99, -999])
+
+            v2 = CircularVector([1,2,3])
+            append!(v2, CircularVector([-1,-2]))
+            @test v2 == CircularVector([1,2,3,-1,-2])
+
+            v3 = CircularVector([1,2,3])
+            append!(v3, [4, 5], [6])
+            @test v3 == CircularVector([1,2,3,4,5,6])
+
+            v4 = CircularVector([1,2,3])
+            o4 = OffsetVector([-1,-2,-3], -2:0)
+            append!(v4, o4)
+            @test v4 == CircularVector([1,2,3,-1,-2,-3])
+
+            v5 = CircularVector([1,2,3])
+            o5 = OffsetVector([-1,-2,-3], -2:0)
+            append!(v5, o5, -4)
+            @test v5 == CircularVector([1,2,3,-1,-2,-3,-4])
+        end
+    end
+
+    @testset "pop!" begin
+        v1 = CircularVector([1,2,3,42])
+        pop!(v1) == 42
+        @test v1 == CircularVector([1,2,3])
+
+        v2 = CircularVector([1])
+        pop!(v2) == 1
+        @test v2 == CircularVector([])
+        @test isempty(v2)
+        @test_throws ArgumentError("array must be non-empty") pop!(v2)
+    end
+
+    @testset "sizehint!" begin
+        v = CircularVector([1,2,3,4,5,6,7])
+        resize!(v, 1)
+        sizehint!(v, 1)
+        @test length(v) == 1
+    end
 
     @testset "deleteat!" begin
         @test deleteat!(CircularVector([1, 2, 3]), 2) == CircularVector([1, 3])
