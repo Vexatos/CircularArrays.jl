@@ -110,7 +110,7 @@ end
     end
 
     @testset "resize!" begin
-        @test_throws "ArgumentError: new length must be ≥ 0" resize!(CircularVector([]), -2)
+        @test_throws ArgumentError("new length must be ≥ 0") resize!(CircularVector([]), -2)
         v = CircularVector([1,2,3,4,5,6,7])
         resize!(v, 3)
         @test length(v) == 3
@@ -158,7 +158,7 @@ end
         pop!(v2) == 1
         @test v2 == CircularVector([])
         @test isempty(v2)
-        @test_throws "ArgumentError: array must be non-empty" pop!(v2)
+        @test_throws ArgumentError("array must be non-empty") pop!(v2)
     end
 
     @testset "sizehint!" begin
