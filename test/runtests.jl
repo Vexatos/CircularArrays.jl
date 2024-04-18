@@ -161,6 +161,13 @@ end
         @test_throws "ArgumentError: array must be non-empty" pop!(v2)
     end
 
+    @testset "sizehint!" begin
+        A = CircularVector([1,2,3,4,5,6,7])
+        resize!(A, 1)
+        sizehint!(A, 1)
+        @test length(A) == 1
+    end
+
     @testset "deleteat!" begin
         @test deleteat!(CircularVector([1, 2, 3]), 2) == CircularVector([1, 3])
         @test deleteat!(CircularVector([1, 2, 3]), 5) == CircularVector([1, 3])
