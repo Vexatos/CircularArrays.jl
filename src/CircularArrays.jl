@@ -152,4 +152,42 @@ function Base.insert!(a::CircularVector, i::Integer, item)
     a
 end
 
+function Base.splice!(a::CircularVector, i::Integer, ins=Base._default_splice)
+  splice!(a.data, mod(i, eachindex(IndexLinear(), a.data)), ins)
+end
+
+# modulo unit ranges aren't in Base, so we basically reimplement splice!
+function Base.splice!(a::CircularVector, r::AbstractUnitRange{<:Integer}, ins=Base._default_splice)
+  v = a[r]
+  m = length(ins)
+  if m == 0
+    deleteat!(a, r)
+    return v
+  end
+  b = eachindex(IndexLinear(), a.data)
+
+  n = length(a)
+  f = mod(first(r), b)
+  l = mod(last(r), b)
+  d = length(r)
+
+  if m < d
+    delta = d - m
+    ind = f - 1 < n - l ? f : l - delta + 1
+    Base._deleteat!(a.data, mod(ind, b), delta)
+  elseif m > d
+    ind = f - 1 < n - l ? f : l + 1
+    Base._growat!(a.data, mod(ind, b), m - d)
+  end
+
+  k = 1
+  for x in ins
+    a[f+k-1] = x
+    k += 1
+  end
+  return v
+end
+
+Base.splice!(a::CircularVector, inds) = splice!(a.data, inds)
+
 end
