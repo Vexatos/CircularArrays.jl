@@ -156,7 +156,7 @@ function Base.splice!(a::CircularVector, i::Integer, ins=Base._default_splice)
   splice!(a.data, mod(i, eachindex(IndexLinear(), a.data)), ins)
 end
 
-# modulo unit ranges aren't in Base, so we basically reimplement splice!
+# modulo unit ranges aren't in Base, so we basically reimplement splice! using modular logic
 function Base.splice!(a::CircularVector, r::AbstractUnitRange{<:Integer}, ins=Base._default_splice)
   v = a[r]
   m = length(ins)
