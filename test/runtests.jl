@@ -149,45 +149,6 @@ end
             @test v5 == CircularVector([1,2,3,-1,-2,-3,-4])
         end
     end
-    @testset "resize!" begin
-        @test_throws ArgumentError("new length must be ≥ 0") resize!(CircularVector([]), -2)
-        v = CircularVector([1,2,3,4,5,6,7])
-        resize!(v, 3)
-        @test length(v) == 3
-
-        # ensure defining `resize!` induces `push!` and `append!` methods
-        @testset "push!" begin
-            v = CircularVector([1,2,3])
-            push!(v, 42)
-            @test v == CircularVector([1,2,3,42])
-            push!(v, -9, -99, -999)
-            @test v == CircularVector([1,2,3,42, -9, -99, -999])
-        end
-
-        @testset "append!" begin
-            v1 = CircularVector([1,2,3])
-            append!(v1, [-9, -99, -999])
-            @test v1 == CircularVector([1,2,3, -9, -99, -999])
-
-            v2 = CircularVector([1,2,3])
-            append!(v2, CircularVector([-1,-2]))
-            @test v2 == CircularVector([1,2,3,-1,-2])
-
-            v3 = CircularVector([1,2,3])
-            append!(v3, [4, 5], [6])
-            @test v3 == CircularVector([1,2,3,4,5,6])
-
-            v4 = CircularVector([1,2,3])
-            o4 = OffsetVector([-1,-2,-3], -2:0)
-            append!(v4, o4)
-            @test v4 == CircularVector([1,2,3,-1,-2,-3])
-
-            v5 = CircularVector([1,2,3])
-            o5 = OffsetVector([-1,-2,-3], -2:0)
-            append!(v5, o5, -4)
-            @test v5 == CircularVector([1,2,3,-1,-2,-3,-4])
-        end
-    end
 
     @testset "pop!" begin
         v1 = CircularVector([1,2,3,42])
