@@ -9,58 +9,58 @@ end
 
 @testset "construction" begin
     @testset "construction ($T)" for T = (Float64, Int)
-      data = rand(T,10)
-      arrays = [CircularVector(data), CircularVector{T}(data),
-              CircularArray(data), CircularArray{T}(data), CircularArray{T,1}(data)]
-      @test all(a == first(arrays) for a in arrays)
-      @test all(a isa CircularVector{T,Vector{T}} for a in arrays)
+        data = rand(T,10)
+        arrays = [CircularVector(data), CircularVector{T}(data),
+                CircularArray(data), CircularArray{T}(data), CircularArray{T,1}(data)]
+        @test all(a == first(arrays) for a in arrays)
+        @test all(a isa CircularVector{T,Vector{T}} for a in arrays)
     end
 
     @testset "matrix construction" begin
-      data = zeros(Float64, 2, 2)
-      ref = CircularMatrix(data)
-      @test CircularArray{Float64, 2}(data) == ref
-      @test CircularMatrix{Float64}(data) == ref
-      @test CircularMatrix{Float64, Array{Float64, 2}}(data) == ref
-      @test CircularMatrix{Float64, Matrix{Float64}}(data) == ref
+        data = zeros(Float64, 2, 2)
+        ref = CircularMatrix(data)
+        @test CircularArray{Float64, 2}(data) == ref
+        @test CircularMatrix{Float64}(data) == ref
+        @test CircularMatrix{Float64, Array{Float64, 2}}(data) == ref
+        @test CircularMatrix{Float64, Matrix{Float64}}(data) == ref
     end
 end
 
 @testset "type stability" begin
     @testset "type stability $(n)d" for n in 1:10
-      a = CircularArray(fill(1, ntuple(_->1, n)))
+        a = CircularArray(fill(1, ntuple(_->1, n)))
 
-      @test @inferred(a[1]) isa Int64
-      @test @inferred(a[[1]]) isa CircularVector{Int64}
-      @test @inferred(a[[1]']) isa CircularArray{Int64,2}
-      @test @inferred(axes(a)) isa Tuple{Vararg{AbstractUnitRange}}
-      @test @inferred(similar(a)) isa typeof(a)
-      @test @inferred(similar(a, Float64, Int8.(size(a)))) isa CircularArray{Float64}
-      @test @inferred(similar(typeof(a), axes(a))) isa typeof(a)
-      @test @inferred(a[a]) isa typeof(a)
+        @test @inferred(a[1]) isa Int64
+        @test @inferred(a[[1]]) isa CircularVector{Int64}
+        @test @inferred(a[[1]']) isa CircularArray{Int64,2}
+        @test @inferred(axes(a)) isa Tuple{Vararg{AbstractUnitRange}}
+        @test @inferred(similar(a)) isa typeof(a)
+        @test @inferred(similar(a, Float64, Int8.(size(a)))) isa CircularArray{Float64}
+        @test @inferred(similar(typeof(a), axes(a))) isa typeof(a)
+        @test @inferred(a[a]) isa typeof(a)
     end
 end
 
 @testset "display" begin
     @testset "display $(n)d" for n in 1:3
-      data = rand(Int64, ntuple(_->3, n))
-      v1 = CircularArray(data)
-      io = IOBuffer()
-      io_compare = IOBuffer()
+        data = rand(Int64, ntuple(_->3, n))
+        v1 = CircularArray(data)
+        io = IOBuffer()
+        io_compare = IOBuffer()
 
-      print(io, v1)
-      print(io_compare, data)
-      @test String(take!(io)) == String(take!(io_compare))
+        print(io, v1)
+        print(io_compare, data)
+        @test String(take!(io)) == String(take!(io_compare))
 
-      print(io, summary(v1))
-      print(io_compare, summary(data))
+        print(io, summary(v1))
+        print(io_compare, summary(data))
 
-      text = String(take!(io_compare))
-      text = replace(text, " Vector" => " CircularVector")
-      text = replace(text, " Matrix" => " CircularArray")
-      text = replace(text, " Array" => (n == 1 ? " CircularVector" : " CircularArray"))
-      text = replace(text, r"{.+}" => "(::$(string(typeof(data))))")
-      @test String(take!(io)) == text
+        text = String(take!(io_compare))
+        text = replace(text, " Vector" => " CircularVector")
+        text = replace(text, " Matrix" => " CircularArray")
+        text = replace(text, " Array" => (n == 1 ? " CircularVector" : " CircularArray"))
+        text = replace(text, r"{.+}" => "(::$(string(typeof(data))))")
+        @test String(take!(io)) == text
     end
 end
 
@@ -98,155 +98,194 @@ end
     @test prod(v2) == "abcde"^5
 
     @testset "empty/empty!" begin
-      v1 = CircularVector([1,2,3])
-      @test empty(v1) isa CircularVector{Int64}
-      @test empty(v1, Float64) isa CircularVector{Float64}
-      v1 == CircularVector([])
-      # `isempty` can be used to implement `size` method.
-      @test isempty(empty(v1))
+        v1 = CircularVector([1,2,3])
+        @test empty(v1) isa CircularVector{Int64}
+        @test empty(v1, Float64) isa CircularVector{Float64}
+        v1 == CircularVector([])
+        # `isempty` can be used to implement `size` method.
+        @test isempty(empty(v1))
 
-      v2 = CircularVector("abcde", 5)
-      @test empty!(v2) isa CircularVector{String}
-      @test isempty(v2)
+        v2 = CircularVector("abcde", 5)
+        @test empty!(v2) isa CircularVector{String}
+        @test isempty(v2)
     end
 
     @testset "resize!" begin
-      @test_throws ArgumentError("new length must be ≥ 0") resize!(CircularVector([]), -2)
-      v = CircularVector([1,2,3,4,5,6,7])
-      resize!(v, 3)
-      @test length(v) == 3
+        @test_throws ArgumentError("new length must be ≥ 0") resize!(CircularVector([]), -2)
+        v = CircularVector([1,2,3,4,5,6,7])
+        resize!(v, 3)
+        @test length(v) == 3
 
-      # ensure defining `resize!` induces `push!` and `append!` methods
-      @testset "push!" begin
-        v = CircularVector([1,2,3])
-        push!(v, 42)
-        @test v == CircularVector([1,2,3,42])
-        push!(v, -9, -99, -999)
-        @test v == CircularVector([1,2,3,42, -9, -99, -999])
-      end
+        # ensure defining `resize!` induces `push!` and `append!` methods
+        @testset "push!" begin
+            v = CircularVector([1,2,3])
+            push!(v, 42)
+            @test v == CircularVector([1,2,3,42])
+            push!(v, -9, -99, -999)
+            @test v == CircularVector([1,2,3,42, -9, -99, -999])
+        end
 
-      @testset "append!" begin
-        v1 = CircularVector([1,2,3])
-        append!(v1, [-9, -99, -999])
-        @test v1 == CircularVector([1,2,3, -9, -99, -999])
+        @testset "append!" begin
+            v1 = CircularVector([1,2,3])
+            append!(v1, [-9, -99, -999])
+            @test v1 == CircularVector([1,2,3, -9, -99, -999])
 
-        v2 = CircularVector([1,2,3])
-        append!(v2, CircularVector([-1,-2]))
-        @test v2 == CircularVector([1,2,3,-1,-2])
+            v2 = CircularVector([1,2,3])
+            append!(v2, CircularVector([-1,-2]))
+            @test v2 == CircularVector([1,2,3,-1,-2])
 
-        v3 = CircularVector([1,2,3])
-        append!(v3, [4, 5], [6])
-        @test v3 == CircularVector([1,2,3,4,5,6])
+            v3 = CircularVector([1,2,3])
+            append!(v3, [4, 5], [6])
+            @test v3 == CircularVector([1,2,3,4,5,6])
 
-        v4 = CircularVector([1,2,3])
-        o4 = OffsetVector([-1,-2,-3], -2:0)
-        append!(v4, o4)
-        @test v4 == CircularVector([1,2,3,-1,-2,-3])
+            v4 = CircularVector([1,2,3])
+            o4 = OffsetVector([-1,-2,-3], -2:0)
+            append!(v4, o4)
+            @test v4 == CircularVector([1,2,3,-1,-2,-3])
 
-        v5 = CircularVector([1,2,3])
-        o5 = OffsetVector([-1,-2,-3], -2:0)
-        append!(v5, o5, -4)
-        @test v5 == CircularVector([1,2,3,-1,-2,-3,-4])
-      end
+            v5 = CircularVector([1,2,3])
+            o5 = OffsetVector([-1,-2,-3], -2:0)
+            append!(v5, o5, -4)
+            @test v5 == CircularVector([1,2,3,-1,-2,-3,-4])
+        end
+    end
+    @testset "resize!" begin
+        @test_throws ArgumentError("new length must be ≥ 0") resize!(CircularVector([]), -2)
+        v = CircularVector([1,2,3,4,5,6,7])
+        resize!(v, 3)
+        @test length(v) == 3
+
+        # ensure defining `resize!` induces `push!` and `append!` methods
+        @testset "push!" begin
+            v = CircularVector([1,2,3])
+            push!(v, 42)
+            @test v == CircularVector([1,2,3,42])
+            push!(v, -9, -99, -999)
+            @test v == CircularVector([1,2,3,42, -9, -99, -999])
+        end
+
+        @testset "append!" begin
+            v1 = CircularVector([1,2,3])
+            append!(v1, [-9, -99, -999])
+            @test v1 == CircularVector([1,2,3, -9, -99, -999])
+
+            v2 = CircularVector([1,2,3])
+            append!(v2, CircularVector([-1,-2]))
+            @test v2 == CircularVector([1,2,3,-1,-2])
+
+            v3 = CircularVector([1,2,3])
+            append!(v3, [4, 5], [6])
+            @test v3 == CircularVector([1,2,3,4,5,6])
+
+            v4 = CircularVector([1,2,3])
+            o4 = OffsetVector([-1,-2,-3], -2:0)
+            append!(v4, o4)
+            @test v4 == CircularVector([1,2,3,-1,-2,-3])
+
+            v5 = CircularVector([1,2,3])
+            o5 = OffsetVector([-1,-2,-3], -2:0)
+            append!(v5, o5, -4)
+            @test v5 == CircularVector([1,2,3,-1,-2,-3,-4])
+        end
     end
 
     @testset "pop!" begin
-      v1 = CircularVector([1,2,3,42])
-      pop!(v1) == 42
-      @test v1 == CircularVector([1,2,3])
+        v1 = CircularVector([1,2,3,42])
+        pop!(v1) == 42
+        @test v1 == CircularVector([1,2,3])
 
-      v2 = CircularVector([1])
-      pop!(v2) == 1
-      @test v2 == CircularVector([])
-      @test isempty(v2)
-      @test_throws ArgumentError("array must be non-empty") pop!(v2)
+        v2 = CircularVector([1])
+        pop!(v2) == 1
+        @test v2 == CircularVector([])
+        @test isempty(v2)
+        @test_throws ArgumentError("array must be non-empty") pop!(v2)
     end
 
     @testset "sizehint!" begin
-      v = CircularVector([1,2,3,4,5,6,7])
-      resize!(v, 1)
-      sizehint!(v, 1)
-      @test length(v) == 1
+        v = CircularVector([1,2,3,4,5,6,7])
+        resize!(v, 1)
+        sizehint!(v, 1)
+        @test length(v) == 1
     end
 
     @testset "deleteat!" begin
-      @test deleteat!(CircularVector([1, 2, 3]), 2) == CircularVector([1, 3])
-      @test deleteat!(CircularVector([1, 2, 3]), 5) == CircularVector([1, 3])
-      @test deleteat!(CircularVector([1, 2, 3]), 4) == CircularVector([2, 3])
-      @test deleteat!(CircularVector([1, 2, 3]), 0) == CircularVector([1, 2])
-      @test deleteat!(CircularVector([1, 2, 3, 4]), 1:5:10) == CircularVector([3, 4])
-      @test deleteat!(CircularVector([1, 2, 3, 4]), [1, 5]) == CircularVector([2, 3, 4])
-      @test deleteat!(CircularVector([1, 2, 3, 4]), (1, 5)) == CircularVector([2, 3, 4])
-      @test deleteat!(CircularVector([1, 2, 3, 4]), (1, 6)) == CircularVector([3, 4])
-      @test deleteat!(CircularVector([1, 2, 3, 4]), (1, 3, 5)) == CircularVector([2, 4])
-      @test deleteat!(CircularVector([1, 2, 3, 4]), (1, 5, 7)) == CircularVector([2, 4])
+        @test deleteat!(CircularVector([1, 2, 3]), 2) == CircularVector([1, 3])
+        @test deleteat!(CircularVector([1, 2, 3]), 5) == CircularVector([1, 3])
+        @test deleteat!(CircularVector([1, 2, 3]), 4) == CircularVector([2, 3])
+        @test deleteat!(CircularVector([1, 2, 3]), 0) == CircularVector([1, 2])
+        @test deleteat!(CircularVector([1, 2, 3, 4]), 1:5:10) == CircularVector([3, 4])
+        @test deleteat!(CircularVector([1, 2, 3, 4]), [1, 5]) == CircularVector([2, 3, 4])
+        @test deleteat!(CircularVector([1, 2, 3, 4]), (1, 5)) == CircularVector([2, 3, 4])
+        @test deleteat!(CircularVector([1, 2, 3, 4]), (1, 6)) == CircularVector([3, 4])
+        @test deleteat!(CircularVector([1, 2, 3, 4]), (1, 3, 5)) == CircularVector([2, 4])
+        @test deleteat!(CircularVector([1, 2, 3, 4]), (1, 5, 7)) == CircularVector([2, 4])
     end
 
     @testset "insert!" begin
-      @test insert!(CircularVector([1, 2, 3]), 2, 4) == CircularVector([1, 4, 2, 3])
-      @test insert!(CircularVector([1, 2, 3]), 5, 4) == CircularVector([1, 4, 2, 3])
-      @test insert!(CircularVector([1, 2, 3]), 4, 4) == CircularVector([4, 1, 2, 3])
-      @test insert!(CircularVector([1, 2, 3]), 0, 4) == CircularVector([1, 2, 4, 3])
+        @test insert!(CircularVector([1, 2, 3]), 2, 4) == CircularVector([1, 4, 2, 3])
+        @test insert!(CircularVector([1, 2, 3]), 5, 4) == CircularVector([1, 4, 2, 3])
+        @test insert!(CircularVector([1, 2, 3]), 4, 4) == CircularVector([4, 1, 2, 3])
+        @test insert!(CircularVector([1, 2, 3]), 0, 4) == CircularVector([1, 2, 4, 3])
     end
     @testset "splice!" begin
-      @test splice!(CircularVector([1, 2, 3]), 2) == 2
-      @test splice!(CircularVector([1, 2, 3]), 5) == 2
-      @test splice!(CircularVector([1, 2, 3]), 4) == 1
-      @test splice!(CircularVector([1, 2, 3]), 0) == 3
-      @test splice!(CircularVector([1, 2, 3]), [2, 3]) == [2, 3]
+        @test splice!(CircularVector([1, 2, 3]), 2) == 2
+        @test splice!(CircularVector([1, 2, 3]), 5) == 2
+        @test splice!(CircularVector([1, 2, 3]), 4) == 1
+        @test splice!(CircularVector([1, 2, 3]), 0) == 3
+        @test splice!(CircularVector([1, 2, 3]), [2, 3]) == [2, 3]
 
-      v = CircularVector([1, 2, 3, 4])
-      spliced = splice!(v, 2:3, [42, 43])
-      @test spliced == CircularVector([2, 3])
-      @test v == CircularVector([1, 42, 43, 4])
+        v = CircularVector([1, 2, 3, 4])
+        spliced = splice!(v, 2:3, [42, 43])
+        @test spliced == CircularVector([2, 3])
+        @test v == CircularVector([1, 42, 43, 4])
 
-      v = CircularVector([1, 2, 3, 4])
-      spliced = splice!(v, 3:2, [42, 43])
-      @test length(spliced) == 0
-      @test v == CircularVector([1, 2, 42, 43, 3, 4])
+        v = CircularVector([1, 2, 3, 4])
+        spliced = splice!(v, 3:2, [42, 43])
+        @test length(spliced) == 0
+        @test v == CircularVector([1, 2, 42, 43, 3, 4])
 
-      v1 = CircularVector([1, 2, 3, 4])
-      spliced1 = splice!(v1, 5:7, [42, 43])
-      v2 = CircularVector([1, 2, 3, 4])
-      spliced2 = splice!(v2, 1:3, [42, 43])
-      t = Vector([1, 2, 3, 4])
-      spliced3 = splice!(t, 1:3, [42, 43])
-      @test spliced3 == [1, 2, 3]
+        v1 = CircularVector([1, 2, 3, 4])
+        spliced1 = splice!(v1, 5:7, [42, 43])
+        v2 = CircularVector([1, 2, 3, 4])
+        spliced2 = splice!(v2, 1:3, [42, 43])
+        t = Vector([1, 2, 3, 4])
+        spliced3 = splice!(t, 1:3, [42, 43])
+        @test spliced3 == [1, 2, 3]
 
-      @test spliced1 == CircularVector([1, 2, 3])
-      @test spliced1 == spliced2
-      @test v1 == v2
-      @test v1 == t
+        @test spliced1 == CircularVector([1, 2, 3])
+        @test spliced1 == spliced2
+        @test v1 == v2
+        @test v1 == t
 
-      v = CircularVector([1, 2, 3, 4])
-      spliced = splice!(v, 5:4, [42, 43])
-      @test length(spliced) == 0
-      @test v == CircularVector([42, 43, 1, 2, 3, 4])
+        v = CircularVector([1, 2, 3, 4])
+        spliced = splice!(v, 5:4, [42, 43])
+        @test length(spliced) == 0
+        @test v == CircularVector([42, 43, 1, 2, 3, 4])
     end
 
     @testset "doubly circular" begin
-      a = CircularVector([1, 2, 3, 4, 5])
-      b = CircularVector(a)
+        a = CircularVector([1, 2, 3, 4, 5])
+        b = CircularVector(a)
 
-      @test all(a[i] == b[i] for i in -50:50)
+        @test all(a[i] == b[i] for i in -50:50)
     end
 
     @testset "type stability" begin
-      v3 = @inferred(map(x -> x+1, CircularArray([1, 2, 3, 4])))
-      @test v3 isa CircularVector{Int64}
-      @test v3 == CircularArray([2, 3, 4, 5])
-      @test similar(v3, Base.OneTo(4)) isa typeof(v3)
-      @test similar(typeof(v3), Base.OneTo(4)) isa typeof(v3)
-      @test similar(typeof(v3), 4) isa typeof(v3)
-      @test similar(typeof(v3), 4) isa typeof(v3)
+        v3 = @inferred(map(x -> x+1, CircularArray([1, 2, 3, 4])))
+        @test v3 isa CircularVector{Int64}
+        @test v3 == CircularArray([2, 3, 4, 5])
+        @test similar(v3, Base.OneTo(4)) isa typeof(v3)
+        @test similar(typeof(v3), Base.OneTo(4)) isa typeof(v3)
+        @test similar(typeof(v3), 4) isa typeof(v3)
+        @test similar(typeof(v3), 4) isa typeof(v3)
 
-      v4 = @inferred(CircularArray([1, 2, 3, 4]) .+ 1)
-      @test v4 isa CircularVector{Int64}
-      @test v4 == CircularArray([2, 3, 4, 5])
+        v4 = @inferred(CircularArray([1, 2, 3, 4]) .+ 1)
+        @test v4 isa CircularVector{Int64}
+        @test v4 == CircularArray([2, 3, 4, 5])
 
-      v5 = v4 .> 3
-      @test v5 isa CircularVector{Bool, BitVector}
-      @test v5 == CircularArray([0, 0, 1, 1])
+        v5 = v4 .> 3
+        @test v5 isa CircularVector{Bool, BitVector}
+        @test v5 == CircularArray([0, 0, 1, 1])
     end
 end
 
@@ -296,12 +335,12 @@ end
     @test a3 == CircularArray(5, (2, 3))
 
     @testset "doubly circular" begin
-      a = CircularMatrix(b_arr)
-      da = CircularMatrix(a)
+        a = CircularMatrix(b_arr)
+        da = CircularMatrix(a)
 
-      @test da isa CircularMatrix
-      @test all(a[i, j] == da[i, j] for i in -8:8, j in -8:8)
-      @test all(a[i] == da[i] for i in -50:50)
+        @test da isa CircularMatrix
+        @test all(a[i, j] == da[i, j] for i in -8:8, j in -8:8)
+        @test all(a[i] == da[i] for i in -50:50)
     end
 end
 
@@ -332,11 +371,11 @@ end
     @test_throws BoundsError c3[CartesianIndex(2,3)]
 
     @testset "doubly circular" begin
-      c = CircularArray(t3)
-      dc = CircularArray(c)
+        c = CircularArray(t3)
+        dc = CircularArray(c)
 
-      @test all(c[i, j, k] == dc[i, j, k] for i in -5:5, j in -5:5, k in -5:5)
-      @test all(c[i] == dc[i] for i in -50:50)
+        @test all(c[i, j, k] == dc[i, j, k] for i in -5:5, j in -5:5, k in -5:5)
+        @test all(c[i] == dc[i] for i in -50:50)
     end
 end
 
@@ -352,12 +391,12 @@ end
     @test a[i] == OffsetArray([4,5,1,2,3],-3)
 
     @testset "type stability" begin
-      @test @inferred(similar(a)) isa CircularVector
-      @test @inferred(similar(typeof(a), axes(a))) isa CircularVector
+        @test @inferred(similar(a)) isa CircularVector
+        @test @inferred(similar(typeof(a), axes(a))) isa CircularVector
 
-      b = CircularVector([1, 2, 3, 4, 5])
-      @test @inferred(similar(b, 3:5)) isa CircularVector
-      @test @inferred(similar(typeof(b), 3:5)) isa CircularVector
+        b = CircularVector([1, 2, 3, 4, 5])
+        @test @inferred(similar(b, 3:5)) isa CircularVector
+        @test @inferred(similar(typeof(b), 3:5)) isa CircularVector
     end
 
     circ_a = circshift(a,3)
