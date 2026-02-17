@@ -193,30 +193,37 @@ end
         @test splice!(CircularVector([1, 2, 3]), 5) == 2
         @test splice!(CircularVector([1, 2, 3]), 4) == 1
         @test splice!(CircularVector([1, 2, 3]), 0) == 3
+        v = CircularVector([1, 2, 3])
+        spliced = splice!(v, 2)
+        @test spliced == 2
+        @test v == CircularVector([1, 3])
         @test splice!(CircularVector([1, 2, 3]), [2, 3]) == [2, 3]
 
         v = CircularVector([1, 2, 3, 4])
-        spliced = splice!(v, 2:3, [42, 43])
-        @test spliced == CircularVector([2, 3])
-        @test v == CircularVector([1, 42, 43, 4])
+        spliced = splice!(v, 2:4, [42, 43])
+        @test spliced == CircularVector([2, 3, 4])
+        @test v == CircularVector([1, 42, 43])
+
+        v = CircularVector([1, 2, 3, 4])
+        spliced = splice!(v, 3:3)
+        @test length(spliced) == 1
+        @test spliced == CircularVector([3])
+        @test length(v) == 3
 
         v = CircularVector([1, 2, 3, 4])
         spliced = splice!(v, 3:2, [42, 43])
         @test length(spliced) == 0
         @test v == CircularVector([1, 2, 42, 43, 3, 4])
 
+        # correctness test for modulo unit ranges
         v1 = CircularVector([1, 2, 3, 4])
         spliced1 = splice!(v1, 5:7, [42, 43])
         v2 = CircularVector([1, 2, 3, 4])
         spliced2 = splice!(v2, 1:3, [42, 43])
-        t = Vector([1, 2, 3, 4])
-        spliced3 = splice!(t, 1:3, [42, 43])
-        @test spliced3 == [1, 2, 3]
 
-        @test spliced1 == CircularVector([1, 2, 3])
-        @test spliced1 == spliced2
         @test v1 == v2
-        @test v1 == t
+        @test spliced1 == spliced2 == [1, 2, 3]
+        @test v1 == v2
 
         v = CircularVector([1, 2, 3, 4])
         spliced = splice!(v, 5:4, [42, 43])
@@ -247,6 +254,12 @@ end
         v5 = v4 .> 3
         @test v5 isa CircularVector{Bool, BitVector}
         @test v5 == CircularArray([0, 0, 1, 1])
+
+        @inferred splice!(CircularVector([1, 2, 3, 4]), 1, [42, 43])
+        @inferred splice!(CircularVector([1, 2, 3, 4]), 5, [42, 43])
+        @inferred splice!(CircularVector([1, 2, 3, 4]), 5:7, [42, 43])
+        @inferred splice!(CircularVector([1, 2, 3, 4]), 3:2, [42, 43])
+        @inferred splice!(CircularVector([1, 2, 3, 4]), [1, 2, 3])
     end
 end
 

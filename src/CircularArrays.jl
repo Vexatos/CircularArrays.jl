@@ -12,10 +12,10 @@ export CircularArray, CircularVector, CircularMatrix
 
     array[index...] == array[mod1.(index, size)...]
 """
-struct CircularArray{T, N, A <: AbstractArray{T,N}} <: AbstractArray{T,N}
-    data::A
-    CircularArray{T,N}(data::A) where A <: AbstractArray{T,N} where {T,N} = new{T,N,A}(data)
-    CircularArray{T,N,A}(data::A) where A <: AbstractArray{T,N} where {T,N} = new{T,N,A}(data)
+struct CircularArray{T,N,A<:AbstractArray{T,N}} <: AbstractArray{T,N}
+  data::A
+  CircularArray{T,N}(data::A) where A<:AbstractArray{T,N} where {T,N} = new{T,N,A}(data)
+  CircularArray{T,N,A}(data::A) where A<:AbstractArray{T,N} where {T,N} = new{T,N,A}(data)
 end
 
 """
@@ -26,7 +26,7 @@ Alias for [`CircularArray{T,1,A}`](@ref).
 
     array[index] == array[mod1(index, length)]
 """
-const CircularVector{T} = CircularArray{T, 1}
+const CircularVector{T} = CircularArray{T,1}
 
 """
     CircularMatrix{T,A} <: AbstractMatrix{T}
@@ -34,7 +34,7 @@ const CircularVector{T} = CircularArray{T, 1}
 Two-dimensional array backed by an `AbstractArray{T, 2}` of type `A` with fixed size and circular indexing.
 Alias for [`CircularArray{T,2,A}`](@ref).
 """
-const CircularMatrix{T} = CircularArray{T, 2}
+const CircularMatrix{T} = CircularArray{T,2}
 
 """
     CircularArray(data)
@@ -70,23 +70,23 @@ Base.IndexStyle(::Type{<:CircularVector}) = IndexLinear()
 @inline Base.copy(arr::CircularArray) = CircularArray(copy(parent(arr)))
 
 @inline function Base.checkbounds(arr::CircularArray, I...)
-    J = Base.to_indices(arr, I)
-    length(J) == 1 || length(J) >= ndims(arr) || throw(BoundsError(arr, I))
-    nothing
+  J = Base.to_indices(arr, I)
+  length(J) == 1 || length(J) >= ndims(arr) || throw(BoundsError(arr, I))
+  nothing
 end
 
 @inline _similar(arr::CircularArray, ::Type{T}, dims) where T = CircularArray(similar(parent(arr), T, dims))
-@inline Base.similar(arr::CircularArray, ::Type{T}, dims::Tuple{Base.DimOrInd, Vararg{Base.DimOrInd}}) where T = _similar(arr, T, dims)
+@inline Base.similar(arr::CircularArray, ::Type{T}, dims::Tuple{Base.DimOrInd,Vararg{Base.DimOrInd}}) where T = _similar(arr, T, dims)
 # Ambiguity resolution with Base
 @inline Base.similar(arr::CircularArray, ::Type{T}, dims::Dims) where T = _similar(arr, T, dims)
-@inline Base.similar(arr::CircularArray, ::Type{T}, dims::Tuple{Integer, Vararg{Integer}}) where T = _similar(arr, T, dims)
-@inline Base.similar(arr::CircularArray, ::Type{T}, dims::Tuple{Union{Integer, Base.OneTo}, Vararg{Union{Integer, Base.OneTo}}}) where T = _similar(arr, T, dims)
+@inline Base.similar(arr::CircularArray, ::Type{T}, dims::Tuple{Integer,Vararg{Integer}}) where T = _similar(arr, T, dims)
+@inline Base.similar(arr::CircularArray, ::Type{T}, dims::Tuple{Union{Integer,Base.OneTo},Vararg{Union{Integer,Base.OneTo}}}) where T = _similar(arr, T, dims)
 
 @inline _similar(::Type{CircularArray{T,N,A}}, dims) where {T,N,A} = CircularArray{T,N}(similar(A, dims))
-@inline Base.similar(CA::Type{CircularArray{T,N,A}}, dims::Tuple{Base.DimOrInd, Vararg{Base.DimOrInd}}) where {T,N,A} = _similar(CA, dims)
+@inline Base.similar(CA::Type{CircularArray{T,N,A}}, dims::Tuple{Base.DimOrInd,Vararg{Base.DimOrInd}}) where {T,N,A} = _similar(CA, dims)
 # Ambiguity resolution with Base
 @inline Base.similar(CA::Type{CircularArray{T,N,A}}, dims::Dims) where {T,N,A} = _similar(CA, dims)
-@inline Base.similar(CA::Type{CircularArray{T,N,A}}, dims::Tuple{Union{Integer, Base.OneTo}, Vararg{Union{Integer, Base.OneTo}}}) where {T,N,A} = _similar(CA, dims)
+@inline Base.similar(CA::Type{CircularArray{T,N,A}}, dims::Tuple{Union{Integer,Base.OneTo},Vararg{Union{Integer,Base.OneTo}}}) where {T,N,A} = _similar(CA, dims)
 
 @inline Broadcast.BroadcastStyle(::Type{CircularArray{T,N,A}}) where {T,N,A} = Broadcast.ArrayStyle{CircularArray{T,N,A}}()
 @inline Base.similar(bc::Broadcast.Broadcasted{Broadcast.ArrayStyle{CircularArray{T,N,A}}}, ::Type{ElType}) where {T,N,A,ElType} = CircularArray(similar(convert(Broadcast.Broadcasted{typeof(Broadcast.BroadcastStyle(A))}, bc), ElType))
@@ -94,10 +94,10 @@ end
 @inline Base.dataids(arr::CircularArray) = Base.dataids(parent(arr))
 
 function Base.showarg(io::IO, arr::CircularArray, toplevel)
-    print(io, ndims(arr) == 1 ? "CircularVector(" : "CircularArray(")
-    Base.showarg(io, parent(arr), false)
-    print(io, ')')
-    # toplevel && print(io, " with eltype ", eltype(arr))
+  print(io, ndims(arr) == 1 ? "CircularVector(" : "CircularArray(")
+  Base.showarg(io, parent(arr), false)
+  print(io, ')')
+  # toplevel && print(io, " with eltype ", eltype(arr))
 end
 
 """
@@ -105,14 +105,14 @@ end
 
 Create a `CircularVector` wrapping the array `data`.
 """
-CircularVector(data::AbstractArray{T, 1}) where T = CircularVector{T}(data)
+CircularVector(data::AbstractArray{T,1}) where T = CircularVector{T}(data)
 
 """
     CircularMatrix(data)
 
 Create a `CircularMatrix` wrapping the array `data`.
 """
-CircularMatrix(data::AbstractArray{T, 2}) where T = CircularMatrix{T}(data)
+CircularMatrix(data::AbstractArray{T,2}) where T = CircularMatrix{T}(data)
 
 
 """
@@ -127,7 +127,7 @@ CircularVector(def::T, size::Int) where T = CircularVector{T}(fill(def, size))
 
 Create a `CircularMatrix` of size `size` filled with value `def`.
 """
-CircularMatrix(def::T, size::NTuple{2, Integer}) where T = CircularMatrix{T}(fill(def, size))
+CircularMatrix(def::T, size::NTuple{2,Integer}) where T = CircularMatrix{T}(fill(def, size))
 
 Base.empty(::CircularVector{T}, ::Type{U}=T) where {T,U} = CircularVector{U}(U[])
 Base.empty!(a::CircularVector) = (empty!(parent(a)); a)
@@ -138,56 +138,31 @@ Base.pop!(a::CircularVector) = pop!(parent(a))
 Base.sizehint!(a::CircularVector, sz::Integer) = (sizehint!(parent(a), sz); a)
 
 function Base.deleteat!(a::CircularVector, i::Integer)
-    deleteat!(a.data, mod(i, eachindex(IndexLinear(), a.data)))
-    a
+  deleteat!(a.data, mod(i, eachindex(IndexLinear(), a.data)))
+  a
 end
 
 function Base.deleteat!(a::CircularVector, inds)
-    deleteat!(a.data, sort!(unique(map(i -> mod(i, eachindex(IndexLinear(), a.data)), inds))))
-    a
+  deleteat!(a.data, sort!(unique(map(i -> mod(i, eachindex(IndexLinear(), a.data)), inds))))
+  a
 end
 
 function Base.insert!(a::CircularVector, i::Integer, item)
-    insert!(a.data, mod(i, eachindex(IndexLinear(), a.data)), item)
-    a
+  insert!(a.data, mod(i, eachindex(IndexLinear(), a.data)), item)
+  a
 end
-
-function Base.splice!(a::CircularVector, i::Integer, ins=Base._default_splice)
-  splice!(a.data, mod(i, eachindex(IndexLinear(), a.data)), ins)
-end
-
-# modulo unit ranges aren't in Base, so we basically reimplement splice! using modular logic
-function Base.splice!(a::CircularVector, r::AbstractUnitRange{<:Integer}, ins=Base._default_splice)
-  v = a[r]
-  m = length(ins)
-  if m == 0
-    deleteat!(a, r)
-    return v
-  end
-  b = eachindex(IndexLinear(), a.data)
-
-  n = length(a)
-  f = mod(first(r), b)
-  l = mod(last(r), b)
-  d = length(r)
-
-  if m < d
-    delta = d - m
-    ind = f - 1 < n - l ? f : l - delta + 1
-    Base._deleteat!(a.data, mod(ind, b), delta)
-  elseif m > d
-    ind = f - 1 < n - l ? f : l + 1
-    Base._growat!(a.data, mod(ind, b), m - d)
-  end
-
-  k = 1
-  for x in ins
-    a[f+k-1] = x
-    k += 1
-  end
+function Base.splice!(a::CircularVector, i::Union{Integer,AbstractUnitRange{<:Integer}}, ins=Base._default_splice)
+  v = a[i]
+  idx = mod(first(i), eachindex(IndexLinear(), a.data))
+  deleteat!(a, i)
+  splice!(a.data, idx:idx-1, ins)
   return v
 end
 
-Base.splice!(a::CircularVector, inds) = splice!(a.data, inds)
+function Base.splice!(a::CircularVector, inds)
+  dltds = [a[i] for i in inds]
+  deleteat!(a, dltds)
+  dltds
+end
 
 end
