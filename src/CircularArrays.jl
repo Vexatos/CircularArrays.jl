@@ -151,6 +151,7 @@ function Base.insert!(a::CircularVector, i::Integer, item)
     insert!(a.data, mod(i, eachindex(IndexLinear(), a.data)), item)
     a
 end
+
 function Base.splice!(a::CircularVector, i::Union{Integer,AbstractUnitRange{<:Integer}}, ins=Base._default_splice)
     v = a[i]
     idx = mod(first(i), eachindex(IndexLinear(), a.data))

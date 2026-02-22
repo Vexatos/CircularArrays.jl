@@ -188,6 +188,7 @@ end
         @test insert!(CircularVector([1, 2, 3]), 4, 4) == CircularVector([4, 1, 2, 3])
         @test insert!(CircularVector([1, 2, 3]), 0, 4) == CircularVector([1, 2, 4, 3])
     end
+
     @testset "splice!" begin
         @test splice!(CircularVector([1, 2, 3]), 2) == 2
         @test splice!(CircularVector([1, 2, 3]), 5) == 2
